@@ -3,38 +3,36 @@
 <head>
 <script>
 (async () => {
+  const WORKER_BASE = "https://empty-queen-8cef.yangjian930317.workers.dev";
+
   const email = localStorage.getItem("email");
   const token = localStorage.getItem("token");
   const device = localStorage.getItem("device_id");
 
-  // 1️⃣ 本地没有登录信息 → 回登录页
+  // 未登录 → 回登录页
   if (!email || !token || !device) {
-    window.location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
+    location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
     return;
   }
 
   try {
-    // 2️⃣ 向 Cloudflare Worker 校验
     const res = await fetch(
-      "https://empty-queen-8cef.yangjian930317.workers.dev/verify" +
-      `?email=${encodeURIComponent(email)}` +
-      `&device=${encodeURIComponent(device)}` +
-      `&token=${encodeURIComponent(token)}`
+      `${WORKER_BASE}/verify?email=${encodeURIComponent(email)}&device=${device}&token=${token}`
     );
 
-    // 3️⃣ 校验失败 → 被踢 / 异地登录
     if (!res.ok) {
-      alert("⚠️ 你已在其他设备登录，或权限已失效");
+      alert("你已在其他设备登录或登录失效");
       localStorage.clear();
-      window.location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
+      location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
     }
   } catch (e) {
-    alert("⚠️ 无法连接认证服务器");
+    alert("校验失败，请重新登录");
     localStorage.clear();
-    window.location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
+    location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
   }
 })();
 </script>
+
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2674,6 +2672,7 @@
     </script>
 </body>
 </html>
+
 
 
 
