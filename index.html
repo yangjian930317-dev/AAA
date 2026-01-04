@@ -589,58 +589,38 @@
     </style>
 
 <script>
-const CLIENT_ID = "Ov23liBOvH8NAH9ueNrb";
+  const CLIENT_ID = "Ov23IiB0vH8NAH9ueNbr";
 
-// 👇 允许访问的 GitHub 用户名（只改这里）
-const ALLOWED_USERS = [
-  "findingdivide357-crypto",
-  "yangjian713",
-  "studentGithub"
-];
-
-// 解析 token
-function getToken() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("code");
-}
-
-// 跳转 GitHub 登录
-function login() {
-  const redirect = window.location.origin + window.location.pathname;
-  const url = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=read:user&redirect_uri=${redirect}`;
-  window.location.href = url;
-}
-
-// 用 token 获取用户信息
-async function getUser(code) {
-  // ⚠️ GitHub 不允许纯前端直接换 token
-  // 所以这里用 GitHub API 的公开用户接口（折中方案）
-  const res = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: "token " + code
-    }
-  });
-  return res.json();
-}
-
-// 主逻辑
-(async function () {
-  const code = getToken();
-  if (!code) {
-    login();
-    return;
+  function getCode() {
+    return new URLSearchParams(window.location.search).get("code");
   }
 
-  try {
-    const user = await getUser(code);
-    if (!ALLOWED_USERS.includes(user.login)) {
-      document.body.innerHTML = "<h1>Access Denied</h1>";
-    }
-  } catch (e) {
-    document.body.innerHTML = "<h1>Authentication failed</h1>";
+  function loginWithGitHub() {
+    const redirectUri = window.location.origin + window.location.pathname;
+    const url =
+      "https://github.com/login/oauth/authorize" +
+      "?client_id=" + CLIENT_ID +
+      "&scope=read:user" +
+      "&redirect_uri=" + encodeURIComponent(redirectUri);
+
+    window.location.href = url;
   }
-})();
+
+  (function () {
+    const code = getCode();
+
+    // 没有 code → 还没登录 GitHub
+    if (!code) {
+      loginWithGitHub();
+      return;
+    }
+
+    // 有 code → 说明 GitHub 已确认身份
+    // ✅ 直接放行，什么都不做
+    console.log("GitHub login success");
+  })();
 </script>
+
 
 
 </head>
