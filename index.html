@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>传播理论闯关测验</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6fa5);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 12px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #2E7D32);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mode-tag {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .mode-normal {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .mode-practice {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .content-area {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #eaeaea;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #4a6fa5;
+        }
+        
+        .section-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+        
+        .section-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 4px solid #4a6fa5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .section-item:hover {
+            background-color: #e8f4fc;
+            transform: translateX(5px);
+        }
+        
+        .section-item.active {
+            background-color: #4a6fa5;
+            color: white;
+            border-left-color: #2c3e50;
+        }
+        
+        .section-item.completed {
+            border-left-color: #4CAF50;
+        }
+        
+        .section-item.completed:after {
+            content: " ✓";
+            color: #4CAF50;
+            font-weight: bold;
+            float: right;
+        }
+        
+        .section-item.active.completed:after {
+            color: white;
+        }
+        
+        .mode-switcher {
+            display: flex;
+            background-color: #f0f0f0;
+            border-radius: 30px;
+            padding: 4px;
+            margin-bottom: 25px;
+            width: fit-content;
+        }
+        
+        .mode-btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+        }
+        
+        .mode-btn.active {
+            background-color: #4a6fa5;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mode-btn.practice.active {
+            background-color: #ff9800;
+        }
+        
+        .wrong-questions-panel {
+            background-color: #fff3cd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .wrong-questions-panel.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .wrong-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .wrong-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .wrong-item {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .question-counter {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        @media (min-width: 768px) {
+            .options-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .option-letter {
+            display: inline-block;
+            min-width: 32px;
+            height: 32px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 12px;
+            color: #555;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-prev {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-prev:hover:not(:disabled) {
+            background-color: #5a6268;
+        }
+        
+        .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-show-answer {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-show-answer:hover:not(:disabled) {
+            background-color: #e0a800;
+        }
+        
+        .btn-show-answer:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-next {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .btn-next:hover:not(:disabled) {
+            background-color: #3a5a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        .btn-practice {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .btn-practice:hover:not(:disabled) {
+            background-color: #e68900;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+        
+        .answer-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e8f4fc;
+            border-radius: 12px;
+            border-left: 5px solid #4a6fa5;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .answer-container.show {
+            display: block;
+        }
+        
+        .answer-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .answer-text {
+            color: #333;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        
+        .result-screen {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .result-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px auto;
+            max-width: 500px;
+            text-align: left;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin: 30px 0;
+            color: #4a6fa5;
+        }
+        
+        .btn-restart {
+            background: linear-gradient(to right, #4a6fa5, #2c3e50);
+            color: white;
+            font-size: 1.1rem;
+            padding: 16px 32px;
+            margin-top: 20px;
+        }
+        
+        .btn-restart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .practice-stats {
+            background-color: #fff3cd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .practice-stats.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .practice-stats-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .practice-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .practice-progress-bar {
+            flex-grow: 1;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        
+        .practice-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .practice-accuracy {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .auto-next-indicator {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+            display: none;
+        }
+        
+        .auto-next-indicator.show {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>传播理论闯关测验</h1>
+            <div class="subtitle">Communication Theory Challenge - 84 Questions</div>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="mode-indicator">
+                <span>模式:</span>
+                <div class="mode-tag mode-normal" id="modeTag">闯关模式</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="stats-item" id="progressText">题目: 0/0</div>
+        </div>
+        
+        <div class="content-area">
+            <div class="sidebar">
+                <div class="section-title">理论章节</div>
+                <ul class="section-list" id="sectionList">
+                    <!-- 章节列表将通过JavaScript动态生成 -->
+                </ul>
+                
+                <div class="mode-switcher" id="modeSwitcher">
+                    <button class="mode-btn active" data-mode="normal">闯关模式</button>
+                    <button class="mode-btn practice" data-mode="practice">练习错题</button>
+                </div>
+                
+                <div class="practice-stats" id="practiceStats">
+                    <div class="practice-stats-title">
+                        <span>练习统计</span>
+                        <span id="practiceAccuracy">正确率: 0%</span>
+                    </div>
+                    <div class="practice-progress">
+                        <span id="practiceCurrent">0</span>
+                        <div class="practice-progress-bar">
+                            <div class="practice-progress-fill" id="practiceProgressFill"></div>
+                        </div>
+                        <span id="practiceTotal">0</span>
+                    </div>
+                    <div class="practice-accuracy" id="practiceCorrectCount">正确: 0 | 错误: 0</div>
+                </div>
+                
+                <div class="wrong-questions-panel" id="wrongQuestionsPanel">
+                    <div class="wrong-title">
+                        <span>错题记录 (<span id="wrongCount">0</span>)</span>
+                    </div>
+                    <ul class="wrong-list" id="wrongList">
+                        <!-- 错题列表将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="quizContent">
+                    <div class="question-counter" id="questionCounter">
+                        <span id="questionNumber">第 1 题</span>
+                        <span class="mode-tag mode-normal" id="questionModeTag">闯关</span>
+                    </div>
+                    <div class="question-text" id="questionText"></div>
+                    
+                    <div class="options-container" id="optionsContainer">
+                        <!-- 选项按钮将通过JavaScript动态生成 -->
+                    </div>
+                    
+                    <div class="auto-next-indicator" id="autoNextIndicator">
+                        <i class="fas fa-clock"></i> 1秒后自动进入下一题...
+                    </div>
+                    
+                    <div class="answer-container" id="answerContainer">
+                        <div class="answer-title">
+                            <i class="fas fa-check-circle"></i> 正确答案
+                        </div>
+                        <div class="answer-text" id="answerText"></div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="btn btn-prev" id="prevBtn">
+                            <i class="fas fa-arrow-left"></i> 上一题
+                        </button>
+                        <button class="btn btn-show-answer" id="showAnswerBtn">
+                            <i class="fas fa-lightbulb"></i> 显示答案
+                        </button>
+                        <button class="btn btn-next" id="nextBtn">
+                            下一题 <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="btn btn-practice" id="practiceBtn" style="display: none;">
+                            <i class="fas fa-book"></i> 练习错题
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="result-screen" id="resultScreen">
+                    <h2 class="result-title" id="resultTitle">闯关完成!</h2>
+                    
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">总题目数:</span>
+                            <span class="stat-value" id="totalQuestions">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">正确回答:</span>
+                            <span class="stat-value" id="correctAnswers">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">错误回答:</span>
+                            <span class="stat-value" id="wrongAnswers">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">正确率:</span>
+                            <span class="stat-value" id="accuracyRate">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-message" id="resultMessage"></div>
+                    
+                    <button class="btn btn-restart" id="restartBtn">
+                        <i class="fas fa-redo"></i> 重新开始闯关
+                    </button>
+                    
+                    <button class="btn btn-practice" id="practiceAllWrongBtn" style="margin-top: 10px;">
+                        <i class="fas fa-book"></i> 练习错题
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 传播理论题目数据 (84道题目)
+        const questions = [
+            // I. Communication Models (6题)
+            {
+                id: 1,
+                section: "I. Communication Models",
+                question: "Which of the following best describes the components of Lasswell's communication model?",
+                options: [
+                    "Source, Encoder, Message, Decoder, Receiver",
+                    "Sender, Message, Feedback, Noise, Context",
+                    "Who, Says What, In Which Channel, To Whom, With What Effect",
+                    "Speaker, Audience, Medium, Culture, Meaning"
+                ],
+                answer: 2,
+                explanation: "C — Who, Says What, In Which Channel, To Whom, With What Effect"
+            },
+            {
+                id: 2,
+                section: "I. Communication Models",
+                question: "What is the primary focus of Lasswell's model of communication?",
+                options: [
+                    "The technical accuracy of message transmission",
+                    "The effect of the message on the audience",
+                    "The role of feedback in communication",
+                    "The psychological state of the sender"
+                ],
+                answer: 1,
+                explanation: "B — The effect of the message on the audience"
+            },
+            {
+                id: 3,
+                section: "I. Communication Models",
+                question: "Which element is unique to the Shannon and Weaver model that addresses potential problems in communication?",
+                options: [
+                    "Feedback",
+                    "Channel",
+                    "Noise",
+                    "Interpretation"
+                ],
+                answer: 2,
+                explanation: "C — Noise"
+            },
+            {
+                id: 4,
+                section: "I. Communication Models",
+                question: "What is the primary function of the Shannon and Weaver model of communication?",
+                options: [
+                    "To study feedback in two-way communication",
+                    "To analyze cultural meaning in messages",
+                    "To explain interpersonal influence",
+                    "To examine opinion leadership"
+                ],
+                answer: 0,
+                explanation: "A — To study feedback in two-way communication"
+            },
+            {
+                id: 5,
+                section: "I. Communication Models",
+                question: "What is a key feature that distinguishes the Osgood-Schramm model from earlier models like Shannon and Weaver's?",
+                options: [
+                    "One-way transmission",
+                    "Emphasis on media effects",
+                    "Introduction of feedback and circular communication",
+                    "Focus on mass audiences"
+                ],
+                answer: 2,
+                explanation: "C — Introduction of feedback and circular communication"
+            },
+            {
+                id: 6,
+                section: "I. Communication Models",
+                question: "According to the Osgood-Schramm model, both the sender and the receiver:",
+                options: [
+                    "Act only as message transmitters",
+                    "Encode, decode, and interpret messages",
+                    "Are passive participants",
+                    "Operate independently without feedback"
+                ],
+                answer: 1,
+                explanation: "B — Encode, decode, and interpret messages"
+            },
+            // II. Hypodermic Needle / Two-Step Flow / Osgood Mediational (6题)
+            {
+                id: 7,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "What is the main assumption of the Hypodermic Needle Theory in mass communication?",
+                options: [
+                    "Audiences actively interpret messages",
+                    "Media messages are directly and uniformly received by a passive audience",
+                    "Media influence depends on social context",
+                    "Opinion leaders filter media messages"
+                ],
+                answer: 1,
+                explanation: "B — Media messages are directly and uniformly received by a passive audience"
+            },
+            {
+                id: 8,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "Which of the following best describes the audience in the Hypodermic Needle Theory?",
+                options: [
+                    "Critical and selective",
+                    "Passive and easily influenced by media content",
+                    "Opinion-driven and resistant",
+                    "Highly interactive"
+                ],
+                answer: 1,
+                explanation: "B — Passive and easily influenced by media content"
+            },
+            {
+                id: 9,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "What does the Two-Step Flow Theory emphasize in communication?",
+                options: [
+                    "Media's direct influence on individuals",
+                    "Technological mediation",
+                    "The impact of interpersonal connections on shaping opinions",
+                    "Psychological persuasion"
+                ],
+                answer: 2,
+                explanation: "C — The impact of interpersonal connections on shaping opinions"
+            },
+            {
+                id: 10,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "According to Osgood's Mediational Theory, how does communication occur between a stimulus and a response?",
+                options: [
+                    "Through direct media exposure",
+                    "Via emotional reaction",
+                    "It is mediated by internal cognitive processes",
+                    "Through mass persuasion"
+                ],
+                answer: 2,
+                explanation: "C — It is mediated by internal cognitive processes"
+            },
+            {
+                id: 11,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "What did the study 'The Two-Step Flow of Information – Mass Media Messages and Voting Decisions' find surprising?",
+                options: [
+                    "Media had no influence on voters",
+                    "Political ads were most effective",
+                    "Informal personal communication had a greater influence on voting behavior than media messages",
+                    "Newspapers dominated opinion formation"
+                ],
+                answer: 2,
+                explanation: "C — Informal personal communication had a greater influence on voting behavior than media messages"
+            },
+            {
+                id: 12,
+                section: "II. Hypodermic Needle / Two-Step Flow / Osgood Mediational",
+                question: "What is the key concept in Osgood's Mediational Theory?",
+                options: [
+                    "Media agenda-setting",
+                    "Opinion leadership",
+                    "Internal symbolic mediation between stimulus and response",
+                    "Passive audience reception"
+                ],
+                answer: 2,
+                explanation: "C — The role of internal symbolic mediation between stimulus and response"
+            },
+            // III. Diffusion of Innovation (10题)
+            {
+                id: 13,
+                section: "III. Diffusion of Innovation",
+                question: "Who developed the Diffusion of Innovations theory?",
+                options: [
+                    "Elihu Katz",
+                    "Everett Rogers",
+                    "George Gerbner",
+                    "Kurt Lewin"
+                ],
+                answer: 1,
+                explanation: "B — Everett Rogers"
+            },
+            {
+                id: 14,
+                section: "III. Diffusion of Innovation",
+                question: "Which adopter category makes up 34% of the population and adopts innovations after the average person?",
+                options: [
+                    "Innovators",
+                    "Early Adopters",
+                    "Early Majority",
+                    "Late Majority"
+                ],
+                answer: 3,
+                explanation: "D — Late Majority"
+            },
+            {
+                id: 15,
+                section: "III. Diffusion of Innovation",
+                question: "What role do Early Adopters play in the diffusion of innovations?",
+                options: [
+                    "They resist change",
+                    "They delay adoption",
+                    "They are opinion leaders who provide guidance on innovations",
+                    "They adopt last"
+                ],
+                answer: 2,
+                explanation: "C — They are opinion leaders who provide guidance on innovations"
+            },
+            {
+                id: 16,
+                section: "III. Diffusion of Innovation",
+                question: "What is a key aspect of the Diffusion of Innovation Theory in health communication?",
+                options: [
+                    "Media entertainment",
+                    "Slowing behavioral change",
+                    "Speeding up the acceptance of public health programs",
+                    "Reducing interpersonal influence"
+                ],
+                answer: 2,
+                explanation: "C — It is utilized to speed up the acceptance of public health programs"
+            },
+            {
+                id: 17,
+                section: "III. Diffusion of Innovation",
+                question: "According to the Diffusion of Innovation Theory, who are considered influential in shaping opinions?",
+                options: [
+                    "Innovators only",
+                    "Media organizations",
+                    "Peers and opinion leaders",
+                    "Government agencies"
+                ],
+                answer: 2,
+                explanation: "C — Peers and opinion leaders"
+            },
+            {
+                id: 18,
+                section: "III. Diffusion of Innovation",
+                question: "What does the Diffusion of Innovation Theory overlook in its approach?",
+                options: [
+                    "Media exposure",
+                    "Individual resources and social support for adopting new behaviors",
+                    "Opinion leadership",
+                    "Innovation characteristics"
+                ],
+                answer: 1,
+                explanation: "B — Individual resources and social support for adopting new behaviors"
+            },
+            {
+                id: 19,
+                section: "III. Diffusion of Innovation",
+                question: "What is a criticism of the Diffusion of Innovation Theory in applied fields such as health communication?",
+                options: [
+                    "It ignores innovation stages",
+                    "It overemphasizes technology",
+                    "It does not identify participatory approaches in public health programs",
+                    "It rejects opinion leadership"
+                ],
+                answer: 2,
+                explanation: "C — It does not identify participatory approaches in public health programs"
+            },
+            {
+                id: 20,
+                section: "III. Diffusion of Innovation",
+                question: "What is the final stage of the innovation-decision process?",
+                options: [
+                    "Knowledge",
+                    "Persuasion",
+                    "Implementation",
+                    "Confirmation"
+                ],
+                answer: 3,
+                explanation: "D — Confirmation"
+            },
+            {
+                id: 21,
+                section: "III. Diffusion of Innovation",
+                question: "What kind of person is a 'laggard'?",
+                options: [
+                    "An early adopter",
+                    "A technology promoter",
+                    "Someone very slow to adopt new ideas",
+                    "A media opinion leader"
+                ],
+                answer: 2,
+                explanation: "C — Someone who is very slow to adopt new ideas"
+            },
+            {
+                id: 22,
+                section: "III. Diffusion of Innovation",
+                question: "What does 'relative advantage' mean in Diffusion of Innovation theory?",
+                options: [
+                    "Media popularity of an idea",
+                    "Cost of adoption",
+                    "How much better the new idea is than the existing one",
+                    "Speed of diffusion"
+                ],
+                answer: 2,
+                explanation: "C — How much better the new idea is than the existing or old one"
+            },
+            // IV. Cultivation Theory (10题)
+            {
+                id: 23,
+                section: "IV. Cultivation Theory",
+                question: "What does cultivation theory primarily explore?",
+                options: [
+                    "Short-term media effects",
+                    "Media's influence on society",
+                    "Advertising effectiveness",
+                    "Audience feedback"
+                ],
+                answer: 1,
+                explanation: "B — Media's influence on society"
+            },
+            {
+                id: 24,
+                section: "IV. Cultivation Theory",
+                question: "What was the initial goal of the Cultural Indicators Project?",
+                options: [
+                    "To measure ratings",
+                    "To study advertising",
+                    "To analyze TV themes and correlate them with social attitudes",
+                    "To improve journalism ethics"
+                ],
+                answer: 2,
+                explanation: "C — To analyze TV show themes such as violence, gender roles, and ethnic portrayals to correlate with social attitudes"
+            },
+            {
+                id: 25,
+                section: "IV. Cultivation Theory",
+                question: "How does cultivation theory suggest television shapes societal norms and values?",
+                options: [
+                    "Through immediate persuasion",
+                    "Through repeated exposure shaping perceptions",
+                    "Through audience interaction",
+                    "Through political framing"
+                ],
+                answer: 1,
+                explanation: "B — Through repeated exposure shaping perceptions"
+            },
+            {
+                id: 26,
+                section: "IV. Cultivation Theory",
+                question: "What is 'Mean World Syndrome'?",
+                options: [
+                    "Media addiction",
+                    "News fatigue",
+                    "A belief that the world is more dangerous due to violent media exposure",
+                    "Political polarization"
+                ],
+                answer: 2,
+                explanation: "C — A skewed belief formed by regularly watching violent media"
+            },
+            {
+                id: 27,
+                section: "IV. Cultivation Theory",
+                question: "According to cultivation theory, heavy viewing of TV crime stories leads to:",
+                options: [
+                    "Increased empathy",
+                    "Reduced fear",
+                    "Increased fear of crime and support for punishment",
+                    "Political engagement"
+                ],
+                answer: 2,
+                explanation: "C — Increased fear of crime and belief in punitive measures"
+            },
+            {
+                id: 28,
+                section: "IV. Cultivation Theory",
+                question: "What is one major criticism of Cultivation Theory?",
+                options: [
+                    "It ignores media",
+                    "It relies on correlations and ignores individual differences",
+                    "It focuses too much on social media",
+                    "It rejects audience effects"
+                ],
+                answer: 1,
+                explanation: "B — It relies on correlations and generalizes without considering individual factors"
+            },
+            {
+                id: 29,
+                section: "IV. Cultivation Theory",
+                question: "How does social media challenge Cultivation Theory?",
+                options: [
+                    "By reducing media use",
+                    "By promoting passive viewing",
+                    "By emphasizing interaction over passive consumption",
+                    "By limiting content variety"
+                ],
+                answer: 2,
+                explanation: "C — By emphasizing interactive roles over passive audience models"
+            },
+            {
+                id: 30,
+                section: "IV. Cultivation Theory",
+                question: "What is 'resonance' in Cultivation Theory?",
+                options: [
+                    "Media repetition",
+                    "Audience resistance",
+                    "When real-life experience matches TV portrayals",
+                    "Framing consistency"
+                ],
+                answer: 2,
+                explanation: "C — When real life matches what is seen on TV, strengthening the message"
+            },
+            {
+                id: 31,
+                section: "IV. Cultivation Theory",
+                question: "How does news media portrayal of groups like migrants affect public attitudes?",
+                options: [
+                    "It has no effect",
+                    "It impacts public attitudes and policies",
+                    "It reduces stereotypes",
+                    "It limits political discussion"
+                ],
+                answer: 1,
+                explanation: "B — It impacts public attitudes and policies"
+            },
+            {
+                id: 32,
+                section: "IV. Cultivation Theory",
+                question: "What does 'mainstreaming' mean in Cultivation Theory?",
+                options: [
+                    "Audience resistance",
+                    "Media diversity",
+                    "Different groups developing similar views due to shared media exposure",
+                    "Political framing"
+                ],
+                answer: 2,
+                explanation: "C — Everyone sharing similar views from watching similar TV content"
+            },
+            // V. Gatekeeping Theory & Hierarchy of Influences (10题)
+            {
+                id: 33,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What does Gatekeeping Theory explain?",
+                options: [
+                    "Audience interpretation",
+                    "Media persuasion",
+                    "How information is filtered before reaching the public",
+                    "Media dependency"
+                ],
+                answer: 2,
+                explanation: "C — How information is filtered before reaching the public"
+            },
+            {
+                id: 34,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "Who is considered the original creator of Gatekeeping Theory?",
+                options: [
+                    "Everett Rogers",
+                    "George Gerbner",
+                    "Kurt Lewin",
+                    "Elihu Katz"
+                ],
+                answer: 2,
+                explanation: "C — Kurt Lewin"
+            },
+            {
+                id: 35,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "In media, who is the 'gatekeeper'?",
+                options: [
+                    "The audience",
+                    "The advertiser",
+                    "A person who decides what content is shared",
+                    "The government"
+                ],
+                answer: 2,
+                explanation: "C — A person who decides what news or content is shared"
+            },
+            {
+                id: 36,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What is the first stage in the gatekeeping process?",
+                options: [
+                    "Distribution",
+                    "Interpretation",
+                    "Selection",
+                    "Feedback"
+                ],
+                answer: 2,
+                explanation: "C — Selection"
+            },
+            {
+                id: 37,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What happens during the 'selection' stage?",
+                options: [
+                    "Audience reacts",
+                    "Information is edited",
+                    "The gatekeeper chooses which information to pass on",
+                    "Content is published"
+                ],
+                answer: 2,
+                explanation: "C — The gatekeeper chooses which information to pass on"
+            },
+            {
+                id: 38,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "Which is the best example of gatekeeping?",
+                options: [
+                    "Audience comments",
+                    "A journalist choosing which story to publish",
+                    "Sharing posts on social media",
+                    "Watching the news"
+                ],
+                answer: 1,
+                explanation: "B — A journalist choosing which story to publish"
+            },
+            {
+                id: 39,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What do gatekeepers usually consider before allowing information through?",
+                options: [
+                    "Personal mood",
+                    "Popularity only",
+                    "Importance, truth, and audience interest",
+                    "Entertainment value only"
+                ],
+                answer: 2,
+                explanation: "C — Importance, truth, and audience interest"
+            },
+            {
+                id: 40,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What is the Hierarchy of Influences Model used for?",
+                options: [
+                    "Studying audience effects",
+                    "Measuring ratings",
+                    "Showing what influences journalists and media content",
+                    "Predicting media dependency"
+                ],
+                answer: 2,
+                explanation: "C — Showing what influences journalists and media content"
+            },
+            {
+                id: 41,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "Which level focuses on a journalist's personal beliefs and background?",
+                options: [
+                    "Organizational",
+                    "Individual",
+                    "Social system",
+                    "Routine"
+                ],
+                answer: 1,
+                explanation: "B — Individual"
+            },
+            {
+                id: 42,
+                section: "V. Gatekeeping Theory & Hierarchy of Influences",
+                question: "What are the five key influences in the Hierarchy of Influences Model?",
+                options: [
+                    "Media, audience, culture, politics, economy",
+                    "Individual, routines, organizational, extramedia, social system",
+                    "News, advertising, audience, government, ethics",
+                    "Technology, culture, economy, law, ideology"
+                ],
+                answer: 1,
+                explanation: "B — Individual; Routines; Organizational; Extramedia; Social System"
+            },
+            // VI. TAM / TAM 2 / UTAUT / UTAUT 2 (8题)
+            {
+                id: 43,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "What are the two key factors in TAM 1 influencing technology adoption?",
+                options: [
+                    "Social influence and habit",
+                    "Perceived ease of use and perceived usefulness",
+                    "Price value and enjoyment",
+                    "Media exposure and trust"
+                ],
+                answer: 1,
+                explanation: "B — Perceived Ease of Use and Perceived Usefulness"
+            },
+            {
+                id: 44,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "Who developed the original Technology Acceptance Model (TAM 1)?",
+                options: [
+                    "Everett Rogers",
+                    "Fred Davis",
+                    "Elihu Katz",
+                    "Kurt Lewin"
+                ],
+                answer: 1,
+                explanation: "B — Fred Davis"
+            },
+            {
+                id: 45,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "What is the role of facilitating conditions in the UTAUT model?",
+                options: [
+                    "Motivation",
+                    "Enjoyment",
+                    "Help and support for technology use",
+                    "Media influence"
+                ],
+                answer: 2,
+                explanation: "C — Help and support"
+            },
+            {
+                id: 46,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "Which factor does NOT directly influence behavioral intention?",
+                options: [
+                    "Performance expectancy",
+                    "Effort expectancy",
+                    "Social influence",
+                    "Media habits"
+                ],
+                answer: 3,
+                explanation: "D — Media Habits"
+            },
+            {
+                id: 47,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "Which factor was added in TAM 2 but not in TAM 1?",
+                options: [
+                    "Perceived usefulness",
+                    "Subjective norm",
+                    "Effort expectancy",
+                    "Habit"
+                ],
+                answer: 1,
+                explanation: "B — Subjective Norm"
+            },
+            {
+                id: 48,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "Which is one of the four core determinants in UTAUT 1?",
+                options: [
+                    "Enjoyment",
+                    "Price value",
+                    "Facilitating conditions",
+                    "Media exposure"
+                ],
+                answer: 2,
+                explanation: "C — Facilitating Conditions"
+            },
+            {
+                id: 49,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "Which new factor was added in UTAUT 2 to reflect consumer context?",
+                options: [
+                    "Habit",
+                    "Hedonic motivation",
+                    "Social norms",
+                    "Perceived risk"
+                ],
+                answer: 1,
+                explanation: "B — Hedonic Motivation"
+            },
+            {
+                id: 50,
+                section: "VI. TAM / TAM 2 / UTAUT / UTAUT 2",
+                question: "In UTAUT 2, what does 'price value' assess?",
+                options: [
+                    "Media cost",
+                    "Time spent",
+                    "Cost-benefit of technology use",
+                    "Advertising value"
+                ],
+                answer: 2,
+                explanation: "C — Cost-benefit of technology use"
+            },
+            // VII. Uses and Gratifications Theory (7题)
+            {
+                id: 51,
+                section: "VII. Uses and Gratifications Theory",
+                question: "Who is most closely associated with Uses and Gratifications Theory?",
+                options: [
+                    "George Gerbner",
+                    "Elihu Katz",
+                    "Everett Rogers",
+                    "Fred Davis"
+                ],
+                answer: 1,
+                explanation: "B — Elihu Katz"
+            },
+            {
+                id: 52,
+                section: "VII. Uses and Gratifications Theory",
+                question: "According to the theory, media users are considered:",
+                options: [
+                    "Passive receivers",
+                    "Easily manipulated",
+                    "Active participants",
+                    "Controlled by media"
+                ],
+                answer: 2,
+                explanation: "C — Active participants"
+            },
+            {
+                id: 53,
+                section: "VII. Uses and Gratifications Theory",
+                question: "One key assumption of Uses and Gratifications Theory is:",
+                options: [
+                    "Audiences use media to escape reality",
+                    "Media controls audiences",
+                    "Media has uniform effects",
+                    "Audiences are passive"
+                ],
+                answer: 0,
+                explanation: "A — Audiences use media to escape reality"
+            },
+            {
+                id: 54,
+                section: "VII. Uses and Gratifications Theory",
+                question: "Which is NOT a typical gratification sought from media?",
+                options: [
+                    "Information",
+                    "Entertainment",
+                    "Social interaction",
+                    "Manipulation"
+                ],
+                answer: 3,
+                explanation: "D — Manipulation"
+            },
+            {
+                id: 55,
+                section: "VII. Uses and Gratifications Theory",
+                question: "Which best represents social integrative use of media?",
+                options: [
+                    "Watching movies alone",
+                    "Reading textbooks",
+                    "Messaging friends on social media",
+                    "Listening to news"
+                ],
+                answer: 2,
+                explanation: "C — Messaging friends on social media"
+            },
+            {
+                id: 56,
+                section: "VII. Uses and Gratifications Theory",
+                question: "Watching comedies to relax after work fulfills which gratification?",
+                options: [
+                    "Cognitive",
+                    "Personal identity",
+                    "Tension release",
+                    "Surveillance"
+                ],
+                answer: 2,
+                explanation: "C — Tension release"
+            },
+            {
+                id: 57,
+                section: "VII. Uses and Gratifications Theory",
+                question: "Uses and Gratifications Theory emphasizes:",
+                options: [
+                    "Media power",
+                    "Media ownership",
+                    "What people do with media",
+                    "Media control"
+                ],
+                answer: 2,
+                explanation: "C — What people do with media"
+            },
+            // VIII. Media Dependency Theory (7题)
+            {
+                id: 58,
+                section: "VIII. Media Dependency Theory",
+                question: "Which factor increases media influence according to Media Dependency Theory?",
+                options: [
+                    "More media choices",
+                    "Fewer media channels available",
+                    "Strong social ties",
+                    "Audience resistance"
+                ],
+                answer: 1,
+                explanation: "B — Fewer media channels available"
+            },
+            {
+                id: 59,
+                section: "VIII. Media Dependency Theory",
+                question: "Why does media become more powerful during national emergencies?",
+                options: [
+                    "Media controls government",
+                    "People rely on media for information and guidance",
+                    "Entertainment demand rises",
+                    "Advertising increases"
+                ],
+                answer: 1,
+                explanation: "B — People rely on media for information and guidance"
+            },
+            {
+                id: 60,
+                section: "VIII. Media Dependency Theory",
+                question: "Which situation would most likely reduce media dependency?",
+                options: [
+                    "Increased media coverage",
+                    "Media monopoly",
+                    "Government providing direct information",
+                    "Public panic"
+                ],
+                answer: 2,
+                explanation: "C — Government providing direct information"
+            },
+            {
+                id: 61,
+                section: "VIII. Media Dependency Theory",
+                question: "Media power is strongest when people:",
+                options: [
+                    "Distrust media",
+                    "Have many information sources",
+                    "Rely heavily on media to understand the world",
+                    "Avoid news"
+                ],
+                answer: 2,
+                explanation: "C — Rely heavily on media to understand the world"
+            },
+            {
+                id: 62,
+                section: "VIII. Media Dependency Theory",
+                question: "Media Dependency Theory links media use to:",
+                options: [
+                    "Entertainment needs",
+                    "Information needs",
+                    "Advertising exposure",
+                    "Political ideology"
+                ],
+                answer: 1,
+                explanation: "B — The level of need for information"
+            },
+            {
+                id: 63,
+                section: "VIII. Media Dependency Theory",
+                question: "Individuals are most dependent on media for:",
+                options: [
+                    "Entertainment only",
+                    "Socialization",
+                    "Understanding events and decision-making",
+                    "Relaxation"
+                ],
+                answer: 2,
+                explanation: "C — Understanding events and decision-making"
+            },
+            {
+                id: 64,
+                section: "VIII. Media Dependency Theory",
+                question: "Which is an example of high media dependency?",
+                options: [
+                    "Watching movies for fun",
+                    "Ignoring news",
+                    "Following news closely during a health crisis",
+                    "Reading fiction"
+                ],
+                answer: 2,
+                explanation: "C — Following the news closely during a health crisis"
+            },
+            // IX. Agenda-Setting Theory (7题)
+            {
+                id: 65,
+                section: "IX. Agenda-Setting Theory",
+                question: "What happens when media repeatedly highlight an issue?",
+                options: [
+                    "Public ignores it",
+                    "People think the issue is important",
+                    "Audience resists",
+                    "Media loses credibility"
+                ],
+                answer: 1,
+                explanation: "B — People think the issue is important"
+            },
+            {
+                id: 66,
+                section: "IX. Agenda-Setting Theory",
+                question: "Which best shows agenda-setting?",
+                options: [
+                    "Entertainment shows",
+                    "Daily news coverage of climate change",
+                    "Social media chatting",
+                    "Advertising slogans"
+                ],
+                answer: 1,
+                explanation: "B — News outlets giving daily updates on climate change"
+            },
+            {
+                id: 67,
+                section: "IX. Agenda-Setting Theory",
+                question: "Agenda-setting is most powerful when:",
+                options: [
+                    "Media is ignored",
+                    "People trust and consume news regularly",
+                    "Media is censored",
+                    "Audiences are passive"
+                ],
+                answer: 1,
+                explanation: "B — People trust and consume news regularly"
+            },
+            {
+                id: 68,
+                section: "IX. Agenda-Setting Theory",
+                question: "If media stop covering an issue, what is likely?",
+                options: [
+                    "Issue becomes more important",
+                    "People may forget about it",
+                    "Public protests increase",
+                    "Media credibility improves"
+                ],
+                answer: 1,
+                explanation: "B — People may forget about the issue"
+            },
+            {
+                id: 69,
+                section: "IX. Agenda-Setting Theory",
+                question: "Agenda-setting assumes the audience:",
+                options: [
+                    "Is immune to media",
+                    "Actively resists media",
+                    "Is influenced by media focus",
+                    "Controls media content"
+                ],
+                answer: 2,
+                explanation: "C — Is influenced by media focus"
+            },
+            {
+                id: 70,
+                section: "IX. Agenda-Setting Theory",
+                question: "Media set the public agenda by:",
+                options: [
+                    "Framing opinions",
+                    "Repeating coverage of specific topics",
+                    "Controlling ownership",
+                    "Entertaining audiences"
+                ],
+                answer: 1,
+                explanation: "B — Repeating coverage of specific topics"
+            },
+            {
+                id: 71,
+                section: "IX. Agenda-Setting Theory",
+                question: "Which is least related to agenda-setting?",
+                options: [
+                    "News priorities",
+                    "Media emphasis",
+                    "Issue salience",
+                    "Media used for entertainment"
+                ],
+                answer: 3,
+                explanation: "D — Use of media for entertainment"
+            },
+            // X. Spiral of Silence Theory (9题)
+            {
+                id: 72,
+                section: "X. Spiral of Silence Theory",
+                question: "What is the core idea of the Spiral of Silence Theory?",
+                options: [
+                    "Media controls speech",
+                    "People speak freely",
+                    "People stay silent if they think their opinion is unpopular",
+                    "Opinions spread equally"
+                ],
+                answer: 2,
+                explanation: "C — People remain silent when they believe their opinion is unpopular"
+            },
+            {
+                id: 73,
+                section: "X. Spiral of Silence Theory",
+                question: "Why do people avoid expressing minority opinions?",
+                options: [
+                    "Lack of interest",
+                    "Fear of social isolation",
+                    "Media censorship",
+                    "Low education"
+                ],
+                answer: 1,
+                explanation: "B — Fear of social isolation"
+            },
+            {
+                id: 74,
+                section: "X. Spiral of Silence Theory",
+                question: "The Spiral of Silence grows stronger when:",
+                options: [
+                    "Media shows diverse views",
+                    "Media supports one dominant opinion",
+                    "Social media is interactive",
+                    "Public debate increases"
+                ],
+                answer: 1,
+                explanation: "B — Media supports one dominating opinion"
+            },
+            {
+                id: 75,
+                section: "X. Spiral of Silence Theory",
+                question: "What effect does the Spiral of Silence have on public opinion?",
+                options: [
+                    "Encourages debate",
+                    "Makes dominant opinions seem stronger",
+                    "Reduces conformity",
+                    "Promotes diversity"
+                ],
+                answer: 1,
+                explanation: "B — Makes dominant opinions seem stronger"
+            },
+            {
+                id: 76,
+                section: "X. Spiral of Silence Theory",
+                question: "Which best shows the Spiral of Silence?",
+                options: [
+                    "Open debate",
+                    "Avoiding political talk due to fear of disagreement",
+                    "Media criticism",
+                    "Public protests"
+                ],
+                answer: 1,
+                explanation: "B — Avoiding political conversations due to fear of disagreement"
+            },
+            {
+                id: 77,
+                section: "X. Spiral of Silence Theory",
+                question: "Which environment reduces the Spiral of Silence?",
+                options: [
+                    "Strict control",
+                    "Open and tolerant of all views",
+                    "Media dominance",
+                    "Censorship"
+                ],
+                answer: 1,
+                explanation: "B — Open and tolerant of all views"
+            },
+            {
+                id: 78,
+                section: "X. Spiral of Silence Theory",
+                question: "The Spiral of Silence is most likely in:",
+                options: [
+                    "Private conversations",
+                    "Anonymous forums",
+                    "Public discussions with a dominant norm",
+                    "Academic debates"
+                ],
+                answer: 2,
+                explanation: "C — Public discussions where one opinion is seen as the norm"
+            },
+            {
+                id: 79,
+                section: "X. Spiral of Silence Theory",
+                question: "If people think many others share their opinion, they are more likely to:",
+                options: [
+                    "Stay silent",
+                    "Change views",
+                    "Speak out confidently",
+                    "Withdraw"
+                ],
+                answer: 2,
+                explanation: "C — Speak out confidently"
+            },
+            {
+                id: 80,
+                section: "X. Spiral of Silence Theory",
+                question: "What role does media play in the Spiral of Silence?",
+                options: [
+                    "Silencing all voices",
+                    "Shaping perceptions of popular opinions",
+                    "Eliminating disagreement",
+                    "Encouraging minority views"
+                ],
+                answer: 1,
+                explanation: "B — Shapes perceptions of which opinions are popular"
+            },
+            // XI. Framing Theory (8题)
+            {
+                id: 81,
+                section: "XI. Framing Theory",
+                question: "What is the main idea of Framing Theory?",
+                options: [
+                    "Media sets topics only",
+                    "Media influences how people think about an issue",
+                    "Media controls behavior",
+                    "Media reflects reality"
+                ],
+                answer: 1,
+                explanation: "B — Media influences how people think about an issue"
+            },
+            {
+                id: 82,
+                section: "XI. Framing Theory",
+                question: "How does media use framing?",
+                options: [
+                    "By repeating topics",
+                    "By selecting words, angles, or visuals",
+                    "By censoring content",
+                    "By controlling access"
+                ],
+                answer: 1,
+                explanation: "B — By choosing specific words, angles, or visuals to shape meaning"
+            },
+            {
+                id: 83,
+                section: "XI. Framing Theory",
+                question: "Which best shows the framing effect?",
+                options: [
+                    "Neutral reporting",
+                    "Describing a protest as 'violent' instead of 'peaceful'",
+                    "Reporting statistics",
+                    "Broadcasting live events"
+                ],
+                answer: 1,
+                explanation: "B — A report describes a protest as 'violent' instead of 'peaceful'"
+            },
+            {
+                id: 84,
+                section: "XI. Framing Theory",
+                question: "Why is framing important in news reporting?",
+                options: [
+                    "It entertains audiences",
+                    "It increases ratings",
+                    "It influences public understanding and perception",
+                    "It reduces bias"
+                ],
+                answer: 2,
+                explanation: "C — It influences public understanding and perception"
+            },
+            {
+                id: 85,
+                section: "XI. Framing Theory",
+                question: "Framing affects public opinion by:",
+                options: [
+                    "Ignoring reality",
+                    "Highlighting some aspects while ignoring others",
+                    "Changing facts",
+                    "Controlling access"
+                ],
+                answer: 1,
+                explanation: "B — Highlighting some aspects of an issue while ignoring others"
+            },
+            {
+                id: 86,
+                section: "XI. Framing Theory",
+                question: "Which is an example of framing in political news?",
+                options: [
+                    "Election dates",
+                    "Opinion polls",
+                    "Describing a candidate as a 'hero' or 'threat'",
+                    "Vote counts"
+                ],
+                answer: 2,
+                explanation: "C — A candidate is described as a 'hero' or 'threat' depending on the outlet"
+            },
+            {
+                id: 87,
+                section: "XI. Framing Theory",
+                question: "How can media framing be identified?",
+                options: [
+                    "By counting articles",
+                    "By analyzing tone, language, and presentation angle",
+                    "By audience size",
+                    "By ownership"
+                ],
+                answer: 1,
+                explanation: "B — By analyzing the tone, language, and angle of presentation"
+            },
+            {
+                id: 88,
+                section: "XI. Framing Theory",
+                question: "Framing differs from agenda-setting because framing focuses on:",
+                options: [
+                    "Which issues are covered",
+                    "How issues are presented",
+                    "How often issues appear",
+                    "Who owns media"
+                ],
+                answer: 1,
+                explanation: "B — How an issue is presented"
+            }
+        ];
+
+        // 应用状态管理
+        class QuizApp {
+            constructor() {
+                // 状态变量
+                this.currentQuestionIndex = 0;
+                this.correctAnswers = 0;
+                this.wrongAnswers = 0;
+                this.answeredQuestions = new Set(); // 记录已回答的题目ID
+                this.wrongQuestions = new Set(); // 存储错题的ID
+                this.isPracticeMode = false;
+                this.practiceQuestions = []; // 练习模式下的题目列表
+                this.practiceCorrect = 0; // 练习模式下答对的题目数
+                this.practiceWrong = 0; // 练习模式下答错的题目数
+                this.sectionStatus = {}; // 记录每个章节的完成状态
+                this.autoNextTimeout = null; // 自动跳转的计时器
+                
+                // 获取所有不同的章节
+                this.sections = [...new Set(questions.map(q => q.section))];
+                
+                // DOM元素引用
+                this.questionText = document.getElementById('questionText');
+                this.optionsContainer = document.getElementById('optionsContainer');
+                this.questionCounter = document.getElementById('questionCounter');
+                this.questionNumber = document.getElementById('questionNumber');
+                this.questionModeTag = document.getElementById('questionModeTag');
+                this.progressBar = document.getElementById('progressBar');
+                this.progressText = document.getElementById('progressText');
+                this.modeTag = document.getElementById('modeTag');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.showAnswerBtn = document.getElementById('showAnswerBtn');
+                this.practiceBtn = document.getElementById('practiceBtn');
+                this.quizContent = document.getElementById('quizContent');
+                this.resultScreen = document.getElementById('resultScreen');
+                this.resultTitle = document.getElementById('resultTitle');
+                this.totalQuestionsEl = document.getElementById('totalQuestions');
+                this.correctAnswersEl = document.getElementById('correctAnswers');
+                this.wrongAnswersEl = document.getElementById('wrongAnswers');
+                this.accuracyRateEl = document.getElementById('accuracyRate');
+                this.resultMessage = document.getElementById('resultMessage');
+                this.restartBtn = document.getElementById('restartBtn');
+                this.practiceAllWrongBtn = document.getElementById('practiceAllWrongBtn');
+                this.answerContainer = document.getElementById('answerContainer');
+                this.answerText = document.getElementById('answerText');
+                this.sectionList = document.getElementById('sectionList');
+                this.modeSwitcher = document.getElementById('modeSwitcher');
+                this.wrongQuestionsPanel = document.getElementById('wrongQuestionsPanel');
+                this.wrongCount = document.getElementById('wrongCount');
+                this.wrongList = document.getElementById('wrongList');
+                this.practiceStats = document.getElementById('practiceStats');
+                this.practiceAccuracy = document.getElementById('practiceAccuracy');
+                this.practiceProgressFill = document.getElementById('practiceProgressFill');
+                this.practiceCurrent = document.getElementById('practiceCurrent');
+                this.practiceTotal = document.getElementById('practiceTotal');
+                this.practiceCorrectCount = document.getElementById('practiceCorrectCount');
+                this.autoNextIndicator = document.getElementById('autoNextIndicator');
+                
+                // 初始化章节状态
+                this.sections.forEach(section => {
+                    this.sectionStatus[section] = { completed: 0, total: 0 };
+                });
+                
+                // 统计每个章节的题目数量
+                questions.forEach(question => {
+                    this.sectionStatus[question.section].total++;
+                });
+                
+                // 初始化
+                this.init();
+            }
+            
+            init() {
+                // 初始化章节列表
+                this.renderSectionList();
+                
+                // 初始化选项按钮
+                this.renderOptions();
+                
+                // 添加事件监听器
+                this.addEventListeners();
+                
+                // 加载第一题
+                this.loadQuestion();
+            }
+            
+            // 渲染章节列表
+            renderSectionList() {
+                this.sectionList.innerHTML = '';
+                
+                this.sections.forEach(section => {
+                    const sectionItem = document.createElement('li');
+                    sectionItem.className = 'section-item';
+                    sectionItem.textContent = section;
+                    sectionItem.dataset.section = section;
+                    
+                    // 计算该章节的完成进度
+                    const completedCount = questions.filter(q => 
+                        q.section === section && this.answeredQuestions.has(q.id)
+                    ).length;
+                    
+                    const totalCount = this.sectionStatus[section].total;
+                    
+                    // 如果该章节的所有题目都已回答，标记为完成
+                    if (completedCount === totalCount && totalCount > 0) {
+                        sectionItem.classList.add('completed');
+                    }
+                    
+                    // 如果当前题目属于这个章节，标记为活动状态
+                    const currentQuestion = this.getCurrentQuestion();
+                    if (currentQuestion && currentQuestion.section === section) {
+                        sectionItem.classList.add('active');
+                    }
+                    
+                    sectionItem.addEventListener('click', () => {
+                        const sectionName = sectionItem.dataset.section;
+                        this.goToSection(sectionName);
+                    });
+                    
+                    this.sectionList.appendChild(sectionItem);
+                });
+            }
+            
+            // 跳转到指定章节的第一题
+            goToSection(sectionName) {
+                if (this.isPracticeMode) {
+                    alert("练习模式下不能跳转章节，请先切换到闯关模式。");
+                    return;
+                }
+                
+                // 找到该章节的第一题
+                const firstQuestionIndex = questions.findIndex(q => q.section === sectionName);
+                if (firstQuestionIndex !== -1) {
+                    this.currentQuestionIndex = firstQuestionIndex;
+                    this.loadQuestion();
+                    this.updateSectionList();
+                }
+            }
+            
+            // 更新章节列表状态
+            updateSectionList() {
+                const sectionItems = document.querySelectorAll('.section-item');
+                sectionItems.forEach(item => {
+                    item.classList.remove('active');
+                    
+                    const sectionName = item.dataset.section;
+                    const completedCount = questions.filter(q => 
+                        q.section === sectionName && this.answeredQuestions.has(q.id)
+                    ).length;
+                    
+                    const totalCount = this.sectionStatus[sectionName].total;
+                    
+                    // 更新完成状态
+                    if (completedCount === totalCount && totalCount > 0) {
+                        item.classList.add('completed');
+                    } else {
+                        item.classList.remove('completed');
+                    }
+                    
+                    // 设置活动状态
+                    const currentQuestion = this.getCurrentQuestion();
+                    if (currentQuestion && currentQuestion.section === sectionName) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            // 渲染选项按钮
+            renderOptions() {
+                this.optionsContainer.innerHTML = '';
+                const optionLetters = ['A', 'B', 'C', 'D'];
+                
+                for (let i = 0; i < 4; i++) {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.innerHTML = `
+                        <span class="option-letter">${optionLetters[i]}</span>
+                        <span class="option-text" id="optionText${i}"></span>
+                    `;
+                    button.dataset.index = i;
+                    this.optionsContainer.appendChild(button);
+                }
+                
+                // 重新获取选项按钮引用
+                this.optionButtons = document.querySelectorAll('.option-btn');
+            }
+            
+            // 添加事件监听器
+            addEventListeners() {
+                // 选项按钮点击事件
+                this.optionsContainer.addEventListener('click', (e) => {
+                    const optionBtn = e.target.closest('.option-btn');
+                    if (optionBtn) {
+                        const selectedIndex = parseInt(optionBtn.dataset.index);
+                        this.selectOption(selectedIndex, optionBtn);
+                    }
+                });
+                
+                // 控制按钮事件
+                this.prevBtn.addEventListener('click', () => this.prevQuestion());
+                this.nextBtn.addEventListener('click', () => this.nextQuestion());
+                this.showAnswerBtn.addEventListener('click', () => this.showAnswer());
+                this.restartBtn.addEventListener('click', () => this.restartQuiz());
+                this.practiceAllWrongBtn.addEventListener('click', () => this.startPracticeMode());
+                this.practiceBtn.addEventListener('click', () => this.startPracticeMode());
+                
+                // 模式切换按钮事件
+                const modeButtons = this.modeSwitcher.querySelectorAll('.mode-btn');
+                modeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const mode = button.dataset.mode;
+                        this.switchMode(mode);
+                    });
+                });
+            }
+            
+            // 切换模式
+            switchMode(mode) {
+                // 更新按钮状态
+                const modeButtons = this.modeSwitcher.querySelectorAll('.mode-btn');
+                modeButtons.forEach(button => {
+                    button.classList.remove('active');
+                    if (button.dataset.mode === mode) {
+                        button.classList.add('active');
+                    }
+                });
+                
+                // 更新当前模式显示
+                this.modeTag.textContent = mode === 'normal' ? '闯关模式' : '练习错题';
+                this.modeTag.className = `mode-tag ${mode === 'normal' ? 'mode-normal' : 'mode-practice'}`;
+                
+                if (mode === 'practice') {
+                    if (this.wrongQuestions.size === 0) {
+                        alert("目前没有错题记录，请先完成一些题目。");
+                        // 切换回正常模式
+                        const normalBtn = this.modeSwitcher.querySelector('[data-mode="normal"]');
+                        normalBtn.classList.add('active');
+                        this.modeTag.textContent = '闯关模式';
+                        this.modeTag.className = 'mode-tag mode-normal';
+                        return;
+                    }
+                    this.startPracticeMode();
+                } else {
+                    // 切换到正常模式
+                    this.isPracticeMode = false;
+                    this.currentQuestionIndex = 0;
+                    this.loadQuestion();
+                    this.wrongQuestionsPanel.classList.remove('show');
+                    this.practiceStats.classList.remove('show');
+                    this.practiceBtn.style.display = 'none';
+                }
+            }
+            
+            // 获取当前问题
+            getCurrentQuestion() {
+                if (this.isPracticeMode && this.practiceQuestions.length > 0) {
+                    return this.practiceQuestions[this.currentQuestionIndex];
+                }
+                return questions[this.currentQuestionIndex];
+            }
+            
+            // 获取当前问题列表（根据模式）
+            getCurrentQuestionList() {
+                if (this.isPracticeMode) {
+                    return this.practiceQuestions;
+                }
+                return questions;
+            }
+            
+            // 加载问题
+            loadQuestion() {
+                const question = this.getCurrentQuestion();
+                if (!question) {
+                    this.showResults();
+                    return;
+                }
+                
+                // 清除自动跳转计时器
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                    this.autoNextTimeout = null;
+                }
+                
+                // 隐藏自动跳转指示器
+                this.autoNextIndicator.classList.remove('show');
+                
+                // 更新问题计数器
+                const questionList = this.getCurrentQuestionList();
+                const questionNum = this.isPracticeMode 
+                    ? `练习 ${this.currentQuestionIndex + 1}/${questionList.length}`
+                    : `第 ${question.id} 题`;
+                
+                this.questionNumber.textContent = questionNum;
+                this.questionModeTag.textContent = this.isPracticeMode ? '练习' : '闯关';
+                this.questionModeTag.className = `mode-tag ${this.isPracticeMode ? 'mode-practice' : 'mode-normal'}`;
+                this.questionText.textContent = question.question;
+                
+                // 更新选项文本
+                this.optionButtons.forEach((btn, i) => {
+                    const optionText = btn.querySelector('.option-text');
+                    optionText.textContent = question.options[i] || '';
+                    btn.disabled = false;
+                    btn.classList.remove('correct', 'incorrect');
+                });
+                
+                // 隐藏答案容器
+                this.answerContainer.classList.remove('show');
+                
+                // 更新进度条和文本
+                this.updateProgress();
+                
+                // 更新按钮状态
+                this.updateButtonStates();
+                
+                // 更新章节列表
+                if (!this.isPracticeMode) {
+                    this.updateSectionList();
+                }
+                
+                // 更新错题面板
+                this.updateWrongQuestionsPanel();
+                
+                // 更新练习统计
+                this.updatePracticeStats();
+                
+                // 滚动到顶部
+                document.querySelector('.main-content').scrollTop = 0;
+            }
+            
+            // 选择选项
+            selectOption(selectedIndex, optionBtn) {
+                const question = this.getCurrentQuestion();
+                const correctIndex = question.answer;
+                
+                // 如果已经回答过，忽略点击
+                if (this.isPracticeMode) {
+                    // 练习模式下，题目可以重复回答
+                } else if (this.answeredQuestions.has(question.id)) {
+                    return;
+                }
+                
+                // 显示正确答案和错误答案
+                this.optionButtons.forEach((btn, i) => {
+                    if (i === correctIndex) {
+                        btn.classList.add('correct');
+                    } else if (i === selectedIndex && i !== correctIndex) {
+                        btn.classList.add('incorrect');
+                    }
+                    btn.disabled = true;
+                });
+                
+                // 显示答案解释
+                this.answerText.textContent = question.explanation;
+                this.answerContainer.classList.add('show');
+                
+                // 判断答案是否正确
+                const isCorrect = selectedIndex === correctIndex;
+                
+                if (this.isPracticeMode) {
+                    // 练习模式下的处理
+                    if (isCorrect) {
+                        this.practiceCorrect++;
+                        // 答对的题目从错题集中移除
+                        this.wrongQuestions.delete(question.id);
+                        // 从练习题目列表中移除
+                        this.practiceQuestions = this.practiceQuestions.filter(q => q.id !== question.id);
+                    } else {
+                        this.practiceWrong++;
+                    }
+                    
+                    // 更新练习统计
+                    this.updatePracticeStats();
+                    
+                    // 显示自动跳转指示器
+                    this.autoNextIndicator.classList.add('show');
+                    
+                    // 延迟1秒后自动进入下一题
+                    this.autoNextTimeout = setTimeout(() => {
+                        if (this.practiceQuestions.length > 0) {
+                            // 如果还有题目，继续下一题
+                            if (this.currentQuestionIndex >= this.practiceQuestions.length) {
+                                this.currentQuestionIndex = 0;
+                            }
+                            this.loadQuestion();
+                        } else {
+                            // 如果没有题目了，显示结果
+                            this.showResults();
+                        }
+                    }, 1000);
+                } else {
+                    // 闯关模式下的处理
+                    // 标记答案为已回答
+                    this.answeredQuestions.add(question.id);
+                    
+                    // 更新统计
+                    if (isCorrect) {
+                        this.correctAnswers++;
+                        // 如果之前是错题，现在答对了，从错题集中移除
+                        if (this.wrongQuestions.has(question.id)) {
+                            this.wrongQuestions.delete(question.id);
+                        }
+                    } else {
+                        this.wrongAnswers++;
+                        // 添加到错题集
+                        this.wrongQuestions.add(question.id);
+                        // 显示练习按钮
+                        this.practiceBtn.style.display = 'flex';
+                    }
+                    
+                    // 更新进度
+                    this.updateProgress();
+                    
+                    // 更新章节列表
+                    this.updateSectionList();
+                    
+                    // 更新错题面板
+                    this.updateWrongQuestionsPanel();
+                }
+            }
+            
+            // 显示答案
+            showAnswer() {
+                const question = this.getCurrentQuestion();
+                
+                // 如果已经回答过，忽略
+                if (!this.isPracticeMode && this.answeredQuestions.has(question.id)) {
+                    return;
+                }
+                
+                const correctIndex = question.answer;
+                
+                // 显示正确答案
+                this.optionButtons.forEach((btn, i) => {
+                    if (i === correctIndex) {
+                        btn.classList.add('correct');
+                    }
+                    btn.disabled = true;
+                });
+                
+                // 显示答案解释
+                this.answerText.textContent = question.explanation;
+                this.answerContainer.classList.add('show');
+                
+                if (this.isPracticeMode) {
+                    // 练习模式下，显示答案视为错误
+                    this.practiceWrong++;
+                    // 更新练习统计
+                    this.updatePracticeStats();
+                    
+                    // 显示自动跳转指示器
+                    this.autoNextIndicator.classList.add('show');
+                    
+                    // 延迟1秒后自动进入下一题
+                    this.autoNextTimeout = setTimeout(() => {
+                        if (this.practiceQuestions.length > 0) {
+                            // 如果还有题目，继续下一题
+                            if (this.currentQuestionIndex >= this.practiceQuestions.length) {
+                                this.currentQuestionIndex = 0;
+                            }
+                            this.loadQuestion();
+                        } else {
+                            // 如果没有题目了，显示结果
+                            this.showResults();
+                        }
+                    }, 1000);
+                } else {
+                    // 闯关模式下
+                    // 标记为已回答
+                    this.answeredQuestions.add(question.id);
+                    
+                    // 添加到错题集（因为需要看答案，说明不会做）
+                    this.wrongAnswers++;
+                    this.wrongQuestions.add(question.id);
+                    // 显示练习按钮
+                    this.practiceBtn.style.display = 'flex';
+                    
+                    // 更新进度
+                    this.updateProgress();
+                    
+                    // 更新章节列表
+                    this.updateSectionList();
+                    
+                    // 更新错题面板
+                    this.updateWrongQuestionsPanel();
+                }
+            }
+            
+            // 下一题
+            nextQuestion() {
+                const questionList = this.getCurrentQuestionList();
+                
+                if (this.currentQuestionIndex < questionList.length - 1) {
+                    this.currentQuestionIndex++;
+                    this.loadQuestion();
+                } else {
+                    this.showResults();
+                }
+            }
+            
+            // 上一题
+            prevQuestion() {
+                if (this.currentQuestionIndex > 0) {
+                    this.currentQuestionIndex--;
+                    this.loadQuestion();
+                }
+            }
+            
+            // 更新进度
+            updateProgress() {
+                const questionList = this.getCurrentQuestionList();
+                const totalQuestions = questionList.length;
+                
+                const progress = ((this.currentQuestionIndex + 1) / totalQuestions) * 100;
+                this.progressBar.style.width = `${progress}%`;
+                
+                this.progressText.textContent = this.isPracticeMode
+                    ? `练习: ${this.currentQuestionIndex + 1}/${totalQuestions}`
+                    : `题目: ${this.currentQuestionIndex + 1}/${questions.length}`;
+            }
+            
+            // 更新按钮状态
+            updateButtonStates() {
+                const questionList = this.getCurrentQuestionList();
+                const totalQuestions = questionList.length;
+                
+                this.prevBtn.disabled = this.currentQuestionIndex === 0;
+                this.nextBtn.textContent = this.currentQuestionIndex === totalQuestions - 1 
+                    ? '查看结果' 
+                    : '下一题';
+                
+                const currentQuestion = this.getCurrentQuestion();
+                if (this.isPracticeMode) {
+                    // 练习模式下，所有题目都可以重新回答
+                    this.showAnswerBtn.disabled = false;
+                } else {
+                    this.showAnswerBtn.disabled = this.answeredQuestions.has(currentQuestion.id);
+                }
+            }
+            
+            // 更新错题面板
+            updateWrongQuestionsPanel() {
+                this.wrongCount.textContent = this.wrongQuestions.size;
+                
+                // 如果有关题，显示错题面板
+                if (this.wrongQuestions.size > 0 && !this.isPracticeMode) {
+                    this.wrongQuestionsPanel.classList.add('show');
+                    
+                    // 更新错题列表
+                    this.wrongList.innerHTML = '';
+                    
+                    // 只显示前10个错题
+                    let count = 0;
+                    for (const questionId of this.wrongQuestions) {
+                        if (count >= 10) break;
+                        
+                        const question = questions.find(q => q.id === questionId);
+                        if (question) {
+                            const wrongItem = document.createElement('li');
+                            wrongItem.className = 'wrong-item';
+                            wrongItem.textContent = `第 ${question.id} 题: ${question.question.substring(0, 50)}...`;
+                            this.wrongList.appendChild(wrongItem);
+                            count++;
+                        }
+                    }
+                    
+                    if (this.wrongQuestions.size > 10) {
+                        const moreItem = document.createElement('li');
+                        moreItem.className = 'wrong-item';
+                        moreItem.textContent = `... 还有 ${this.wrongQuestions.size - 10} 道错题`;
+                        this.wrongList.appendChild(moreItem);
+                    }
+                } else {
+                    this.wrongQuestionsPanel.classList.remove('show');
+                }
+            }
+            
+            // 更新练习统计
+            updatePracticeStats() {
+                if (!this.isPracticeMode) {
+                    this.practiceStats.classList.remove('show');
+                    return;
+                }
+                
+                this.practiceStats.classList.add('show');
+                
+                const total = this.practiceCorrect + this.practiceWrong;
+                const accuracy = total > 0 ? Math.round((this.practiceCorrect / total) * 100) : 0;
+                
+                this.practiceAccuracy.textContent = `正确率: ${accuracy}%`;
+                this.practiceCurrent.textContent = this.practiceCorrect + this.practiceWrong;
+                this.practiceTotal.textContent = this.wrongQuestions.size + this.practiceCorrect + this.practiceWrong;
+                this.practiceCorrectCount.textContent = `正确: ${this.practiceCorrect} | 错误: ${this.practiceWrong}`;
+                
+                // 更新练习进度条
+                const totalQuestions = this.wrongQuestions.size + this.practiceCorrect + this.practiceWrong;
+                const progress = totalQuestions > 0 ? ((this.practiceCorrect + this.practiceWrong) / totalQuestions) * 100 : 0;
+                this.practiceProgressFill.style.width = `${progress}%`;
+            }
+            
+            // 开始练习模式
+            startPracticeMode() {
+                if (this.wrongQuestions.size === 0) {
+                    alert("目前没有错题记录，请先完成一些题目。");
+                    return;
+                }
+                
+                // 准备练习题目（从错题集中复制）
+                this.practiceQuestions = [];
+                for (const questionId of this.wrongQuestions) {
+                    const question = questions.find(q => q.id === questionId);
+                    if (question) {
+                        this.practiceQuestions.push({...question}); // 复制题目对象
+                    }
+                }
+                
+                // 随机打乱练习题目
+                this.shuffleArray(this.practiceQuestions);
+                
+                // 重置练习统计
+                this.practiceCorrect = 0;
+                this.practiceWrong = 0;
+                
+                // 切换到练习模式
+                this.isPracticeMode = true;
+                this.currentQuestionIndex = 0;
+                
+                // 更新模式按钮状态
+                this.switchMode('practice');
+                
+                // 隐藏练习按钮
+                this.practiceBtn.style.display = 'none';
+                
+                // 加载第一题
+                this.loadQuestion();
+            }
+            
+            // 显示结果
+            showResults() {
+                // 清除自动跳转计时器
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                    this.autoNextTimeout = null;
+                }
+                
+                // 计算正确率
+                let totalAnswered, accuracy;
+                
+                if (this.isPracticeMode) {
+                    totalAnswered = this.practiceCorrect + this.practiceWrong;
+                    accuracy = totalAnswered > 0 ? Math.round((this.practiceCorrect / totalAnswered) * 100) : 0;
+                    
+                    // 更新结果统计
+                    this.totalQuestionsEl.textContent = this.wrongQuestions.size + this.practiceCorrect + this.practiceWrong;
+                    this.correctAnswersEl.textContent = this.practiceCorrect;
+                    this.wrongAnswersEl.textContent = this.practiceWrong;
+                    this.accuracyRateEl.textContent = `${accuracy}%`;
+                    
+                    // 设置结果消息
+                    this.resultTitle.textContent = '练习完成!';
+                    
+                    if (this.wrongQuestions.size === 0) {
+                        this.resultMessage.textContent = '🎉 太棒了！你已掌握所有错题！';
+                        this.practiceAllWrongBtn.style.display = 'none';
+                    } else {
+                        this.resultMessage.textContent = `你已经完成了错题练习。还有 ${this.wrongQuestions.size} 道题目需要巩固。`;
+                        this.practiceAllWrongBtn.textContent = '继续练习错题';
+                        this.practiceAllWrongBtn.style.display = 'flex';
+                    }
+                } else {
+                    totalAnswered = this.correctAnswers + this.wrongAnswers;
+                    accuracy = totalAnswered > 0 ? Math.round((this.correctAnswers / totalAnswered) * 100) : 0;
+                    
+                    // 更新结果统计
+                    this.totalQuestionsEl.textContent = questions.length;
+                    this.correctAnswersEl.textContent = this.correctAnswers;
+                    this.wrongAnswersEl.textContent = this.wrongAnswers;
+                    this.accuracyRateEl.textContent = `${accuracy}%`;
+                    
+                    // 设置结果消息
+                    this.resultTitle.textContent = '闯关完成!';
+                    
+                    if (this.correctAnswers === questions.length) {
+                        this.resultMessage.textContent = '🎉 太棒了！你答对了所有题目！';
+                    } else if (accuracy >= 80) {
+                        this.resultMessage.textContent = '👍 做得很好！你的正确率很高。';
+                    } else if (accuracy >= 60) {
+                        this.resultMessage.textContent = '😊 不错！继续努力，你可以做得更好。';
+                    } else {
+                        this.resultMessage.textContent = '💪 继续练习，你会进步很快的！';
+                    }
+                    
+                    if (this.wrongQuestions.size > 0) {
+                        this.resultMessage.textContent += ` 你有 ${this.wrongQuestions.size} 道题目需要练习。`;
+                        this.practiceAllWrongBtn.style.display = 'flex';
+                    } else {
+                        this.practiceAllWrongBtn.style.display = 'none';
+                    }
+                }
+                
+                // 切换显示结果屏幕
+                this.quizContent.style.display = 'none';
+                this.resultScreen.style.display = 'block';
+            }
+            
+            // 重新开始测验
+            restartQuiz() {
+                // 清除自动跳转计时器
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                    this.autoNextTimeout = null;
+                }
+                
+                // 重置状态
+                this.currentQuestionIndex = 0;
+                this.correctAnswers = 0;
+                this.wrongAnswers = 0;
+                this.answeredQuestions.clear();
+                this.wrongQuestions.clear();
+                this.isPracticeMode = false;
+                this.practiceQuestions = [];
+                this.practiceCorrect = 0;
+                this.practiceWrong = 0;
+                
+                // 重新显示测验内容
+                this.quizContent.style.display = 'block';
+                this.resultScreen.style.display = 'none';
+                
+                // 切换到正常模式
+                this.switchMode('normal');
+                
+                // 隐藏练习按钮
+                this.practiceBtn.style.display = 'none';
+                
+                // 加载第一题
+                this.loadQuestion();
+            }
+            
+            // 随机打乱数组
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new QuizApp();
+            
+            // 添加页面加载动画
+            document.querySelector('.container').style.opacity = '0';
+            document.querySelector('.container').style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.querySelector('.container').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                document.querySelector('.container').style.opacity = '1';
+                document.querySelector('.container').style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
