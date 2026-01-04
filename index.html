@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -587,42 +585,6 @@
             }
         }
     </style>
-
-<script>
-  const CLIENT_ID = "Ov23IiB0vH8NAH9ueNbr";
-
-  function getCode() {
-    return new URLSearchParams(window.location.search).get("code");
-  }
-
-  function loginWithGitHub() {
-    const redirectUri = window.location.origin + window.location.pathname;
-    const url =
-      "https://github.com/login/oauth/authorize" +
-      "?client_id=" + CLIENT_ID +
-      "&scope=read:user" +
-      "&redirect_uri=" + encodeURIComponent(redirectUri);
-
-    window.location.href = url;
-  }
-
-  (function () {
-    const code = getCode();
-
-    // 没有 code → 还没登录 GitHub
-    if (!code) {
-      loginWithGitHub();
-      return;
-    }
-
-    // 有 code → 说明 GitHub 已确认身份
-    // ✅ 直接放行，什么都不做
-    console.log("GitHub login success");
-  })();
-</script>
-
-
-
 </head>
 <body>
     <div class="container">
