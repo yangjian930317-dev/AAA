@@ -1,56 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<script>
-// 会话验证脚本
-(async function() {
-  try {
-    const response = await fetch('/verify', {
-      credentials: 'include' // 包含Cookie
-    });
-    
-    const data = await response.json();
-    
-    if (!data.valid) {
-      if (data.reason === 'device_mismatch') {
-        alert('已在其他设备登录，正在跳转到登录页面...');
-      }
-      window.location.href = '/login';
-      return;
-    }
-    
-    // 验证成功，可以开始测验
-    console.log('用户已登录:', data.email);
-    
-  } catch (error) {
-    console.error('会话验证失败:', error);
-    window.location.href = '/login';
-  }
-})();
-
-// 定期检查会话状态（每5分钟一次）
-setInterval(async () => {
-  try {
-    const response = await fetch('/verify', {
-      credentials: 'include'
-    });
-    
-    const data = await response.json();
-    
-    if (!data.valid) {
-      if (data.reason === 'device_mismatch') {
-        alert('已在其他设备登录，正在退出...');
-      }
-      window.location.href = '/login';
-    }
-  } catch (error) {
-    // 忽略网络错误
-  }
-}, 5 * 60 * 1000); // 5分钟
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>传播理论闯关测验</title>
+    <title>传播理论闯关测验 - 登录</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -71,13 +24,141 @@ setInterval(async () => {
             align-items: center;
         }
         
-        .container {
+        /* 登录界面样式 */
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .login-form {
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #4a6fa5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #4a6fa5, #2c3e50);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-footer {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .login-footer a {
+            color: #4a6fa5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .password-hint {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            border-left: 4px solid #4a6fa5;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.95rem;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .admin-link {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #6c757d;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        /* 测验主界面样式 */
+        .quiz-container {
             width: 100%;
             max-width: 1100px;
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
+            display: none;
         }
         
         header {
@@ -85,6 +166,26 @@ setInterval(async () => {
             color: white;
             padding: 25px 30px;
             text-align: center;
+            position: relative;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
         
         h1 {
@@ -630,12 +731,127 @@ setInterval(async () => {
             .question-text {
                 font-size: 1.2rem;
             }
+            
+            .login-container {
+                padding: 30px 20px;
+            }
+        }
+        
+        .session-info {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .admin-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 90%;
+            max-height: 80%;
+            overflow: auto;
+            display: none;
+        }
+        
+        .admin-panel.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .admin-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4a6fa5;
+            padding-bottom: 8px;
+        }
+        
+        .admin-panel table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .admin-panel th, .admin-panel td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .admin-panel th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .admin-panel .btn-close {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .admin-panel .btn-close:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 登录界面 -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-header">
+            <h1>传播理论闯关测验</h1>
+            <p>Communication Theory Challenge - 84 Questions</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i> <span id="errorText">密码错误，请重新输入</span>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="password">访问密码</label>
+                <input type="password" id="password" class="form-control" placeholder="请输入访问密码" required autofocus>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> 进入测验系统
+            </button>
+        </form>
+        
+        <div class="password-hint">
+            <p><i class="fas fa-info-circle"></i> <strong>密码提示：</strong>今天的动态密码是 <code id="todayPassword"></code></p>
+            <p style="margin-top: 8px; font-size: 0.85rem;">密码每天更新，有效期为24小时</p>
+        </div>
+        
+        <div class="login-footer">
+            <p>仅供授权用户访问 | 每次登录有效期为4小时</p>
+            <p>为防止分享，系统会记录登录信息</p>
+        </div>
+        
+        <div class="admin-link" id="adminLink">
+            <i class="fas fa-cog"></i> 管理员查看系统状态 (Ctrl+Shift+A)
+        </div>
+        
+        <div class="session-info" id="sessionInfo"></div>
+    </div>
+    
+    <!-- 测验主界面 -->
+    <div class="quiz-container" id="quizContainer">
         <header>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> 退出登录
+            </button>
             <h1>传播理论闯关测验</h1>
             <div class="subtitle">Communication Theory Challenge - 84 Questions</div>
         </header>
@@ -761,6 +977,13 @@ setInterval(async () => {
                 </div>
             </div>
         </div>
+    </div>
+    
+    <!-- 管理员面板 -->
+    <div class="admin-panel" id="adminPanel">
+        <h3>系统状态管理</h3>
+        <div id="adminContent"></div>
+        <button class="btn-close" id="closeAdminPanel">关闭</button>
     </div>
 
     <script>
@@ -1923,7 +2146,493 @@ setInterval(async () => {
             }
         ];
 
-        // 应用状态管理
+        // 登录系统
+        class LoginSystem {
+            constructor() {
+                // 密码生成密钥
+                this.PASSWORD_KEY = "COMMUNICATION2024";
+                
+                // 会话存储键
+                this.SESSION_KEY = "quiz_session_data";
+                this.LOGIN_KEY = "quiz_login_data";
+                
+                // 会话超时时间（4小时）
+                this.SESSION_TIMEOUT = 4 * 60 * 60 * 1000;
+                
+                // 同时登录限制（同一IP最多3个会话）
+                this.MAX_SESSIONS_PER_IP = 3;
+                
+                // DOM元素
+                this.loginContainer = document.getElementById('loginContainer');
+                this.quizContainer = document.getElementById('quizContainer');
+                this.loginForm = document.getElementById('loginForm');
+                this.passwordInput = document.getElementById('password');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.errorText = document.getElementById('errorText');
+                this.todayPassword = document.getElementById('todayPassword');
+                this.sessionInfo = document.getElementById('sessionInfo');
+                this.logoutBtn = document.getElementById('logoutBtn');
+                this.adminLink = document.getElementById('adminLink');
+                this.adminPanel = document.getElementById('adminPanel');
+                this.adminContent = document.getElementById('adminContent');
+                this.closeAdminPanel = document.getElementById('closeAdminPanel');
+                
+                // 初始化
+                this.init();
+            }
+            
+            init() {
+                // 显示今天的密码提示
+                this.showTodayPassword();
+                
+                // 检查是否有有效的会话
+                this.checkExistingSession();
+                
+                // 添加事件监听器
+                this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                this.logoutBtn.addEventListener('click', () => this.handleLogout());
+                this.adminLink.addEventListener('click', () => this.showAdminPanel());
+                this.closeAdminPanel.addEventListener('click', () => this.hideAdminPanel());
+                
+                // 添加键盘快捷键 (Ctrl+Shift+A)
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                        e.preventDefault();
+                        this.showAdminPanel();
+                    }
+                });
+            }
+            
+            // 生成动态密码（基于日期）
+            generateDynamicPassword() {
+                const today = new Date();
+                const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD格式
+                const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                
+                // 生成密码：基础字符串 + 日期 + 特殊算法
+                let password = "";
+                const baseStr = this.PASSWORD_KEY + dateStr.replace(/-/g, '');
+                
+                // 简单加密算法
+                for (let i = 0; i < baseStr.length; i++) {
+                    const charCode = baseStr.charCodeAt(i);
+                    // 将字符代码进行简单变换
+                    password += String.fromCharCode(((charCode + dayOfYear) % 94) + 33);
+                }
+                
+                // 取前10个字符作为密码
+                return password.substring(0, 10);
+            }
+            
+            // 显示今天的密码
+            showTodayPassword() {
+                const password = this.generateDynamicPassword();
+                this.todayPassword.textContent = password;
+            }
+            
+            // 验证密码
+            validatePassword(inputPassword) {
+                const todayPassword = this.generateDynamicPassword();
+                
+                // 也允许昨天的密码（防止时区问题）
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayDateStr = yesterday.toISOString().split('T')[0];
+                const dayOfYearYesterday = Math.floor((yesterday - new Date(yesterday.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                
+                let yesterdayPassword = "";
+                const baseStrYesterday = this.PASSWORD_KEY + yesterdayDateStr.replace(/-/g, '');
+                for (let i = 0; i < baseStrYesterday.length; i++) {
+                    const charCode = baseStrYesterday.charCodeAt(i);
+                    yesterdayPassword += String.fromCharCode(((charCode + dayOfYearYesterday) % 94) + 33);
+                }
+                yesterdayPassword = yesterdayPassword.substring(0, 10);
+                
+                // 检查密码是否匹配今天或昨天的密码
+                return inputPassword === todayPassword || inputPassword === yesterdayPassword;
+            }
+            
+            // 获取客户端IP（模拟）
+            getClientIP() {
+                // 在实际应用中，这里应该从服务器获取真实IP
+                // 这里使用一个模拟的IP，基于用户代理和时间的哈希值
+                const userAgent = navigator.userAgent;
+                const timeStamp = Date.now();
+                const hashString = userAgent + timeStamp;
+                
+                let hash = 0;
+                for (let i = 0; i < hashString.length; i++) {
+                    hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
+                    hash |= 0; // 转换为32位整数
+                }
+                
+                // 生成一个模拟IP地址
+                const ipParts = [
+                    (Math.abs(hash) % 255),
+                    (Math.abs(hash >> 8) % 255),
+                    (Math.abs(hash >> 16) % 255),
+                    (Math.abs(hash >> 24) % 255)
+                ];
+                
+                return ipParts.join('.');
+            }
+            
+            // 检查会话限制
+            checkSessionLimit(clientIP) {
+                const loginData = this.getLoginData();
+                
+                // 统计该IP的活跃会话数
+                const activeSessions = loginData.sessions.filter(session => {
+                    return session.ip === clientIP && 
+                           Date.now() - session.loginTime < this.SESSION_TIMEOUT;
+                });
+                
+                return activeSessions.length < this.MAX_SESSIONS_PER_IP;
+            }
+            
+            // 获取登录数据
+            getLoginData() {
+                const data = localStorage.getItem(this.LOGIN_KEY);
+                if (data) {
+                    return JSON.parse(data);
+                }
+                
+                // 初始化数据结构
+                return {
+                    sessions: [],
+                    totalLogins: 0
+                };
+            }
+            
+            // 保存登录数据
+            saveLoginData(data) {
+                localStorage.setItem(this.LOGIN_KEY, JSON.stringify(data));
+            }
+            
+            // 创建新会话
+            createSession() {
+                const clientIP = this.getClientIP();
+                const loginTime = Date.now();
+                const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // 检查会话限制
+                if (!this.checkSessionLimit(clientIP)) {
+                    this.showError("该IP地址同时登录会话过多，请稍后再试。");
+                    return null;
+                }
+                
+                // 获取登录数据
+                const loginData = this.getLoginData();
+                
+                // 创建新会话
+                const newSession = {
+                    id: sessionId,
+                    ip: clientIP,
+                    loginTime: loginTime,
+                    lastActivity: loginTime
+                };
+                
+                // 添加到会话列表
+                loginData.sessions.push(newSession);
+                loginData.totalLogins++;
+                
+                // 清理过期的会话
+                loginData.sessions = loginData.sessions.filter(session => {
+                    return Date.now() - session.loginTime < this.SESSION_TIMEOUT;
+                });
+                
+                // 保存数据
+                this.saveLoginData(loginData);
+                
+                return {
+                    id: sessionId,
+                    ip: clientIP,
+                    loginTime: loginTime
+                };
+            }
+            
+            // 验证会话
+            validateSession(session) {
+                if (!session || !session.loginTime) return false;
+                
+                // 检查会话是否过期
+                const sessionAge = Date.now() - session.loginTime;
+                return sessionAge < this.SESSION_TIMEOUT;
+            }
+            
+            // 获取当前会话
+            getCurrentSession() {
+                const sessionData = localStorage.getItem(this.SESSION_KEY);
+                if (!sessionData) return null;
+                
+                try {
+                    return JSON.parse(sessionData);
+                } catch (e) {
+                    return null;
+                }
+            }
+            
+            // 保存当前会话
+            saveCurrentSession(session) {
+                localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+            }
+            
+            // 清除当前会话
+            clearCurrentSession() {
+                localStorage.removeItem(this.SESSION_KEY);
+            }
+            
+            // 检查现有会话
+            checkExistingSession() {
+                const session = this.getCurrentSession();
+                
+                if (session && this.validateSession(session)) {
+                    // 会话有效，直接进入测验
+                    this.showQuiz();
+                    this.updateSessionInfo(session);
+                }
+            }
+            
+            // 处理登录
+            handleLogin(e) {
+                e.preventDefault();
+                
+                const password = this.passwordInput.value.trim();
+                
+                if (!password) {
+                    this.showError("请输入密码");
+                    return;
+                }
+                
+                if (!this.validatePassword(password)) {
+                    this.showError("密码错误，请重新输入");
+                    this.passwordInput.value = '';
+                    this.passwordInput.focus();
+                    return;
+                }
+                
+                // 创建新会话
+                const session = this.createSession();
+                
+                if (!session) {
+                    // 会话创建失败（如达到限制）
+                    return;
+                }
+                
+                // 保存会话
+                this.saveCurrentSession(session);
+                
+                // 隐藏错误消息
+                this.hideError();
+                
+                // 显示测验界面
+                this.showQuiz();
+                
+                // 更新会话信息
+                this.updateSessionInfo(session);
+            }
+            
+            // 处理退出登录
+            handleLogout() {
+                // 清除会话
+                this.clearCurrentSession();
+                
+                // 显示登录界面
+                this.showLogin();
+                
+                // 重置密码输入
+                this.passwordInput.value = '';
+                this.passwordInput.focus();
+                
+                // 重新显示今天的密码
+                this.showTodayPassword();
+            }
+            
+            // 显示错误消息
+            showError(message) {
+                this.errorText.textContent = message;
+                this.errorMessage.classList.add('show');
+                
+                // 3秒后自动隐藏错误消息
+                setTimeout(() => {
+                    this.hideError();
+                }, 3000);
+            }
+            
+            // 隐藏错误消息
+            hideError() {
+                this.errorMessage.classList.remove('show');
+            }
+            
+            // 显示登录界面
+            showLogin() {
+                this.loginContainer.style.display = 'block';
+                this.quizContainer.style.display = 'none';
+                this.hideAdminPanel();
+            }
+            
+            // 显示测验界面
+            showQuiz() {
+                this.loginContainer.style.display = 'none';
+                this.quizContainer.style.display = 'block';
+                
+                // 初始化测验应用（如果尚未初始化）
+                if (typeof quizApp === 'undefined') {
+                    initQuizApp();
+                }
+            }
+            
+            // 更新会话信息
+            updateSessionInfo(session) {
+                if (!session) return;
+                
+                const loginTime = new Date(session.loginTime);
+                const expiryTime = new Date(session.loginTime + this.SESSION_TIMEOUT);
+                
+                const timeFormat = new Intl.DateTimeFormat('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                const dateFormat = new Intl.DateTimeFormat('zh-CN', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                const loginTimeStr = `${dateFormat.format(loginTime)} ${timeFormat.format(loginTime)}`;
+                const expiryTimeStr = `${dateFormat.format(expiryTime)} ${timeFormat.format(expiryTime)}`;
+                
+                this.sessionInfo.innerHTML = `
+                    <p><i class="fas fa-user-circle"></i> 当前会话: ${session.id.substring(0, 12)}...</p>
+                    <p><i class="fas fa-clock"></i> 登录时间: ${loginTimeStr}</p>
+                    <p><i class="fas fa-hourglass-end"></i> 会话到期: ${expiryTimeStr}</p>
+                `;
+            }
+            
+            // 更新会话活动时间
+            updateSessionActivity() {
+                const session = this.getCurrentSession();
+                if (session) {
+                    session.lastActivity = Date.now();
+                    this.saveCurrentSession(session);
+                }
+            }
+            
+            // 显示管理员面板
+            showAdminPanel() {
+                const adminPassword = prompt("请输入管理员密码（默认: admin123）");
+                if (adminPassword === "admin123") {
+                    this.renderAdminPanel();
+                    this.adminPanel.classList.add('show');
+                } else {
+                    alert("管理员密码错误");
+                }
+            }
+            
+            // 隐藏管理员面板
+            hideAdminPanel() {
+                this.adminPanel.classList.remove('show');
+            }
+            
+            // 渲染管理员面板内容
+            renderAdminPanel() {
+                const loginData = this.getLoginData();
+                const currentSession = this.getCurrentSession();
+                
+                let html = `<h4>系统统计</h4>`;
+                html += `<p>总登录次数: ${loginData.totalLogins}</p>`;
+                
+                const activeSessions = loginData.sessions.filter(s => 
+                    Date.now() - s.loginTime < this.SESSION_TIMEOUT);
+                html += `<p>活跃会话数: ${activeSessions.length}</p>`;
+                
+                // 按IP分组统计
+                const ipGroups = {};
+                activeSessions.forEach(session => {
+                    if (!ipGroups[session.ip]) {
+                        ipGroups[session.ip] = 0;
+                    }
+                    ipGroups[session.ip]++;
+                });
+                
+                html += `<h4>IP统计</h4>`;
+                html += `<table><tr><th>IP地址</th><th>活跃会话数</th><th>状态</th></tr>`;
+                
+                Object.entries(ipGroups).forEach(([ip, count]) => {
+                    const isCurrent = currentSession && currentSession.ip === ip;
+                    const status = count >= this.MAX_SESSIONS_PER_IP ? "达到限制" : "正常";
+                    const rowClass = isCurrent ? 'style="background-color:#e8f4fc;"' : '';
+                    
+                    html += `<tr ${rowClass}>
+                        <td>${ip} ${isCurrent ? '(当前)' : ''}</td>
+                        <td>${count}/${this.MAX_SESSIONS_PER_IP}</td>
+                        <td>${status}</td>
+                    </tr>`;
+                });
+                
+                html += `</table>`;
+                
+                html += `<h4>所有会话详情</h4>`;
+                html += `<table><tr><th>IP</th><th>登录时间</th><th>会话时长</th><th>状态</th></tr>`;
+                
+                loginData.sessions.forEach(session => {
+                    const loginTime = new Date(session.loginTime);
+                    const age = Date.now() - session.loginTime;
+                    const hours = Math.floor(age / (1000 * 60 * 60));
+                    const minutes = Math.floor((age % (1000 * 60 * 60)) / (1000 * 60));
+                    const isActive = age < this.SESSION_TIMEOUT;
+                    const isCurrent = currentSession && currentSession.id === session.id;
+                    
+                    html += `<tr style="${isCurrent ? 'background-color:#e8f4fc;' : ''}">
+                        <td>${session.ip} ${isCurrent ? '(当前)' : ''}</td>
+                        <td>${loginTime.toLocaleString()}</td>
+                        <td>${hours}时${minutes}分</td>
+                        <td style="color:${isActive ? 'green' : 'red'}">
+                            ${isActive ? '活跃' : '过期'}
+                        </td>
+                    </tr>`;
+                });
+                
+                html += `</table>`;
+                
+                html += `<div style="margin-top:15px;">
+                    <button onclick="loginSystem.clearAllSessions()" style="padding:8px 12px;margin-right:10px;">
+                        清除所有会话
+                    </button>
+                    <button onclick="loginSystem.exportSessions()" style="padding:8px 12px;">
+                        导出数据
+                    </button>
+                </div>`;
+                
+                this.adminContent.innerHTML = html;
+            }
+            
+            // 清除所有会话
+            clearAllSessions() {
+                if (confirm("确定要清除所有会话数据吗？")) {
+                    localStorage.removeItem(this.LOGIN_KEY);
+                    this.renderAdminPanel();
+                    alert("已清除所有会话数据");
+                }
+            }
+            
+            // 导出会话数据
+            exportSessions() {
+                const loginData = this.getLoginData();
+                const dataStr = JSON.stringify(loginData, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `quiz_sessions_${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
+        }
+
+        // 测验应用状态管理
         class QuizApp {
             constructor() {
                 // 状态变量
@@ -2340,6 +3049,11 @@ setInterval(async () => {
                     // 更新错题面板
                     this.updateWrongQuestionsPanel();
                 }
+                
+                // 更新会话活动时间
+                if (typeof loginSystem !== 'undefined') {
+                    loginSystem.updateSessionActivity();
+                }
             }
             
             // 显示答案
@@ -2407,6 +3121,11 @@ setInterval(async () => {
                     // 更新错题面板
                     this.updateWrongQuestionsPanel();
                 }
+                
+                // 更新会话活动时间
+                if (typeof loginSystem !== 'undefined') {
+                    loginSystem.updateSessionActivity();
+                }
             }
             
             // 下一题
@@ -2419,6 +3138,11 @@ setInterval(async () => {
                 } else {
                     this.showResults();
                 }
+                
+                // 更新会话活动时间
+                if (typeof loginSystem !== 'undefined') {
+                    loginSystem.updateSessionActivity();
+                }
             }
             
             // 上一题
@@ -2426,6 +3150,11 @@ setInterval(async () => {
                 if (this.currentQuestionIndex > 0) {
                     this.currentQuestionIndex--;
                     this.loadQuestion();
+                }
+                
+                // 更新会话活动时间
+                if (typeof loginSystem !== 'undefined') {
+                    loginSystem.updateSessionActivity();
                 }
             }
             
@@ -2537,6 +3266,11 @@ setInterval(async () => {
                     }
                 }
                 
+                if (this.practiceQuestions.length === 0) {
+                    alert("没有找到错题，无法开始练习。");
+                    return;
+                }
+                
                 // 随机打乱练习题目
                 this.shuffleArray(this.practiceQuestions);
                 
@@ -2553,6 +3287,11 @@ setInterval(async () => {
                 
                 // 隐藏练习按钮
                 this.practiceBtn.style.display = 'none';
+                
+                // 确保当前索引有效
+                if (this.currentQuestionIndex >= this.practiceQuestions.length) {
+                    this.currentQuestionIndex = 0;
+                }
                 
                 // 加载第一题
                 this.loadQuestion();
@@ -2669,21 +3408,90 @@ setInterval(async () => {
             }
         }
 
-        // 初始化应用
-        document.addEventListener('DOMContentLoaded', () => {
-            const app = new QuizApp();
+        // 全局变量
+        let loginSystem;
+        let quizApp;
+
+        // 初始化登录系统
+        function initLoginSystem() {
+            loginSystem = new LoginSystem();
+        }
+
+        // 初始化测验应用
+        function initQuizApp() {
+            quizApp = new QuizApp();
             
             // 添加页面加载动画
-            document.querySelector('.container').style.opacity = '0';
-            document.querySelector('.container').style.transform = 'translateY(20px)';
+            document.querySelector('.quiz-container').style.opacity = '0';
+            document.querySelector('.quiz-container').style.transform = 'translateY(20px)';
             
             setTimeout(() => {
-                document.querySelector('.container').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                document.querySelector('.container').style.opacity = '1';
-                document.querySelector('.container').style.transform = 'translateY(0)';
+                document.querySelector('.quiz-container').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                document.querySelector('.quiz-container').style.opacity = '1';
+                document.querySelector('.quiz-container').style.transform = 'translateY(0)';
             }, 100);
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            initLoginSystem();
+            
+            // 添加会话超时检查
+            setInterval(() => {
+                if (loginSystem) {
+                    const session = loginSystem.getCurrentSession();
+                    if (!loginSystem.validateSession(session)) {
+                        // 会话已过期，自动退出
+                        loginSystem.handleLogout();
+                    }
+                }
+            }, 60000); // 每分钟检查一次
         });
+        
+        // 在控制台添加辅助函数
+        window.viewAllSessions = function() {
+            const loginData = JSON.parse(localStorage.getItem("quiz_login_data"));
+            if (loginData && loginData.sessions) {
+                console.log("=== 所有登录会话 ===");
+                console.log(`总登录次数: ${loginData.totalLogins}`);
+                console.log(`活跃会话数: ${loginData.sessions.filter(s => Date.now() - s.loginTime < 4 * 60 * 60 * 1000).length}`);
+                
+                // 按IP分组统计
+                const ipGroups = {};
+                loginData.sessions.forEach(session => {
+                    if (!ipGroups[session.ip]) {
+                        ipGroups[session.ip] = 0;
+                    }
+                    ipGroups[session.ip]++;
+                });
+                
+                console.log("\n=== IP统计 ===");
+                Object.entries(ipGroups).forEach(([ip, count]) => {
+                    console.log(`IP ${ip}: ${count} 个会话`);
+                });
+            } else {
+                console.log("没有找到登录数据");
+            }
+        };
+        
+        window.validateAllQuestions = function() {
+            console.log("=== 题目核验 ===");
+            console.log(`题目总数: ${questions.length}`);
+            
+            let errors = 0;
+            questions.forEach((q, index) => {
+                if (q.answer < 0 || q.answer >= q.options.length) {
+                    console.error(`题目 ${q.id}: 答案索引 ${q.answer} 超出范围`);
+                    errors++;
+                }
+                if (q.options.length !== 4) {
+                    console.warn(`题目 ${q.id}: 选项数量为 ${q.options.length}，应为4个`);
+                }
+            });
+            
+            console.log(`核验完成，发现 ${errors} 个错误`);
+            return errors === 0;
+        };
     </script>
 </body>
 </html>
-
