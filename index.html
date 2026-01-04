@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- 登录遮罩 -->
-<div id="loginOverlay" style="
-  position:fixed;
-  inset:0;
-  background:#f4f6f8;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-">
-  <div style="
-    width:360px;
-    background:#fff;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
-    text-align:center;
-  ">
-    <h2>登录进入测验</h2>
-    <input id="emailInput" placeholder="邮箱"
-      style="width:100%;padding:10px;margin-top:15px">
-    <button onclick="login()"
-      style="width:100%;padding:12px;margin-top:15px;font-size:16px">
-      登录
-    </button>
-    <p id="loginMsg" style="color:red;margin-top:10px"></p>
-  </div>
-</div>
+  <!-- 添加到你的 index.html 的 <head> 部分末尾 -->
+<script>
+// 会话验证脚本
+(async function() {
+  try {
+    const response = await fetch('/verify', {
+      credentials: 'include' // 包含Cookie
+    });
+    
+    const data = await response.json();
+    
+    if (!data.valid) {
+      if (data.reason === 'device_mismatch') {
+        alert('已在其他设备登录，正在跳转到登录页面...');
+      }
+      window.location.href = '/login';
+      return;
+    }
+    
+    // 验证成功，可以开始测验
+    console.log('用户已登录:', data.email);
+    
+  } catch (error) {
+    console.error('会话验证失败:', error);
+    window.location.href = '/login';
+  }
+})();
 
+// 定期检查会话状态（每5分钟一次）
+setInterval(async () => {
+  try {
+    const response = await fetch('/verify', {
+      credentials: 'include'
+    });
+    
+    const data = await response.json();
+    
+    if (!data.valid) {
+      if (data.reason === 'device_mismatch') {
+        alert('已在其他设备登录，正在退出...');
+      }
+      window.location.href = '/login';
+    }
+  } catch (error) {
+    // 忽略网络错误
+  }
+}, 5 * 60 * 1000); // 5分钟
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>传播理论闯关测验</title>
@@ -616,10 +635,7 @@
     </style>
 </head>
 <body>
-    <div id="quizApp" style="display:none">
-  <div class="container">
-</div>
-
+    <div class="container">
         <header>
             <h1>传播理论闯关测验</h1>
             <div class="subtitle">Communication Theory Challenge - 84 Questions</div>
@@ -749,59 +765,6 @@
     </div>
 
     <script>
-<script>
-const WORKER = "https://empty-queen-8cef.yangjian930317.workers.dev";
-
-function deviceId() {
-  let d = localStorage.getItem("device_id");
-  if (!d) {
-    d = crypto.randomUUID();
-    localStorage.setItem("device_id", d);
-  }
-  return d;
-}
-
-async function login() {
-  const email = document.getElementById("emailInput").value.trim();
-  if (!email) return;
-
-  const res = await fetch(
-    `${WORKER}/login?email=${email}&device=${deviceId()}`
-  );
-
-  if (!res.ok) {
-    document.getElementById("loginMsg").innerText = "无访问权限";
-    return;
-  }
-
-  const { token } = await res.json();
-  localStorage.setItem("email", email);
-  localStorage.setItem("token", token);
-  checkSession();
-}
-
-async function checkSession() {
-  const email = localStorage.getItem("email");
-  const token = localStorage.getItem("token");
-  const device = deviceId();
-  if (!email || !token) return;
-
-  const res = await fetch(
-    `${WORKER}/verify?email=${email}&device=${device}&token=${token}`
-  );
-
-  if (!res.ok) {
-    localStorage.clear();
-    return;
-  }
-
-  document.getElementById("loginOverlay").style.display = "none";
-  document.getElementById("quizApp").style.display = "block";
-}
-
-checkSession();
-</script>
-
         // 传播理论题目数据 (84道题目)
         const questions = [
             // I. Communication Models (6题)
