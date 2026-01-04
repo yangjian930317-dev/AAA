@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>传播理论闯关测验</title>
+<script>
+(async () => {
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+  const device = localStorage.getItem("device_id");
+
+  if (!email || !token || !device) {
+    location.href = "/login.html";
+    return;
+  }
+
+  const res = await fetch(
+    `https://你的worker域名/verify?email=${email}&device=${device}&token=${token}`
+  );
+
+  if (!res.ok) {
+    alert("你已在其他设备登录");
+    localStorage.clear();
+    location.href = "/login.html";
+  }
+})();
+</script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
