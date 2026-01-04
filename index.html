@@ -1,31 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <script>
+ <script>
 (async () => {
-  const email  = localStorage.getItem("email");
-  const token  = localStorage.getItem("token");
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
   const device = localStorage.getItem("device_id");
 
   if (!email || !token || !device) {
-    location.href = "login.html";
+    location.href =
+      "https://empty-queen-8cef.yangjian930317.workers.dev/login.html";
     return;
   }
 
   const res = await fetch(
-    `https://empty-queen-8cef.yangjian930317.workers.dev/verify` +
-    `?email=${encodeURIComponent(email)}` +
-    `&device=${device}` +
-    `&token=${token}`
+    "https://empty-queen-8cef.yangjian930317.workers.dev/verify"
+    + "?email=" + encodeURIComponent(email)
+    + "&device=" + device
+    + "&token=" + token
   );
 
   if (!res.ok) {
-    alert("你已在其他设备登录");
+    alert("账号已在其他设备登录");
     localStorage.clear();
-    location.href = "login.html";
+    location.href =
+      "https://empty-queen-8cef.yangjian930317.workers.dev/login.html";
   }
 })();
 </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>传播理论闯关测验</title>
@@ -2664,6 +2667,7 @@
     </script>
 </body>
 </html>
+
 
 
 
