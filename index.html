@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>传播理论闯关测验</title>
-
-<style>
-body{font-family:sans-serif;background:#f4f6f8;margin:0;padding:0}
-#loginBox,#quizBox{max-width:420px;margin:80px auto;padding:30px;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
-#quizBox{display:none}
-button{width:100%;padding:12px;margin-top:10px;font-size:16px}
-</style>
-</head>
-
-<body>
-
-<!-- 登录 -->
-<div id="loginBox">
-  <h2>登录</h2>
-  <input id="email" style="width:100%;padding:10px" placeholder="邮箱">
-  <button onclick="login()">登录</button>
-  <p id="msg" style="color:red"></p>
+<!-- 登录遮罩 -->
+<div id="loginOverlay" style="
+  position:fixed;
+  inset:0;
+  background:#f4f6f8;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+">
+  <div style="
+    width:360px;
+    background:#fff;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    text-align:center;
+  ">
+    <h2>登录进入测验</h2>
+    <input id="emailInput" placeholder="邮箱"
+      style="width:100%;padding:10px;margin-top:15px">
+    <button onclick="login()"
+      style="width:100%;padding:12px;margin-top:15px;font-size:16px">
+      登录
+    </button>
+    <p id="loginMsg" style="color:red;margin-top:10px"></p>
+  </div>
 </div>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>传播理论闯关测验</title>
@@ -610,7 +616,10 @@ button{width:100%;padding:12px;margin-top:10px;font-size:16px}
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="quizApp" style="display:none">
+  <div class="container">
+</div>
+
         <header>
             <h1>传播理论闯关测验</h1>
             <div class="subtitle">Communication Theory Challenge - 84 Questions</div>
@@ -740,6 +749,59 @@ button{width:100%;padding:12px;margin-top:10px;font-size:16px}
     </div>
 
     <script>
+<script>
+const WORKER = "https://empty-queen-8cef.yangjian930317.workers.dev";
+
+function deviceId() {
+  let d = localStorage.getItem("device_id");
+  if (!d) {
+    d = crypto.randomUUID();
+    localStorage.setItem("device_id", d);
+  }
+  return d;
+}
+
+async function login() {
+  const email = document.getElementById("emailInput").value.trim();
+  if (!email) return;
+
+  const res = await fetch(
+    `${WORKER}/login?email=${email}&device=${deviceId()}`
+  );
+
+  if (!res.ok) {
+    document.getElementById("loginMsg").innerText = "无访问权限";
+    return;
+  }
+
+  const { token } = await res.json();
+  localStorage.setItem("email", email);
+  localStorage.setItem("token", token);
+  checkSession();
+}
+
+async function checkSession() {
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+  const device = deviceId();
+  if (!email || !token) return;
+
+  const res = await fetch(
+    `${WORKER}/verify?email=${email}&device=${device}&token=${token}`
+  );
+
+  if (!res.ok) {
+    localStorage.clear();
+    return;
+  }
+
+  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("quizApp").style.display = "block";
+}
+
+checkSession();
+</script>
+
         // 传播理论题目数据 (84道题目)
         const questions = [
             // I. Communication Models (6题)
@@ -2660,78 +2722,5 @@ button{width:100%;padding:12px;margin-top:10px;font-size:16px}
             }, 100);
         });
     </script>
-              <div id="quizBox">
-  <h2>欢迎进入测验</h2>
-  <p>你已经通过白名单与设备校验</p>
-  <button onclick="logout()">退出登录</button>
-</div>
-
-<script>
-const WORKER = "https://empty-queen-8cef.yangjian930317.workers.dev";
-
-function deviceId() {
-  let d = localStorage.getItem("device_id");
-  if (!d) {
-    d = crypto.randomUUID();
-    localStorage.setItem("device_id", d);
-  }
-  return d;
-}
-
-async function login() {
-  const email = document.getElementById("email").value.trim();
-  if (!email) return;
-
-  const res = await fetch(
-    `${WORKER}/login?email=${email}&device=${deviceId()}`
-  );
-
-  if (!res.ok) {
-    document.getElementById("msg").innerText = "无权限";
-    return;
-  }
-
-  const { token } = await res.json();
-  localStorage.setItem("email", email);
-  localStorage.setItem("token", token);
-
-  check();
-}
-
-async function check() {
-  const email = localStorage.getItem("email");
-  const token = localStorage.getItem("token");
-  const device = deviceId();
-
-  if (!email || !token) return;
-
-  const res = await fetch(
-    `${WORKER}/verify?email=${email}&device=${device}&token=${token}`
-  );
-
-  if (!res.ok) {
-    logout();
-    return;
-  }
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("quizBox").style.display = "block";
-}
-
-function logout() {
-  localStorage.clear();
-  location.reload();
-}
-
-check();
-</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
