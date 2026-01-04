@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<script>
-(async () => {
-  const WORKER_BASE = "https://empty-queen-8cef.yangjian930317.workers.dev";
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>传播理论闯关测验</title>
 
-  const email = localStorage.getItem("email");
-  const token = localStorage.getItem("token");
-  const device = localStorage.getItem("device_id");
+<style>
+body{font-family:sans-serif;background:#f4f6f8;margin:0;padding:0}
+#loginBox,#quizBox{max-width:420px;margin:80px auto;padding:30px;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+#quizBox{display:none}
+button{width:100%;padding:12px;margin-top:10px;font-size:16px}
+</style>
+</head>
 
-  // 未登录 → 回登录页
-  if (!email || !token || !device) {
-    location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
-    return;
-  }
+<body>
 
-  try {
-    const res = await fetch(
-      `${WORKER_BASE}/verify?email=${encodeURIComponent(email)}&device=${device}&token=${token}`
-    );
-
-    if (!res.ok) {
-      alert("你已在其他设备登录或登录失效");
-      localStorage.clear();
-      location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
-    }
-  } catch (e) {
-    alert("校验失败，请重新登录");
-    localStorage.clear();
-    location.href = "https://yangjian930317-dev.github.io/AAA/login.html";
-  }
-})();
-</script>
-
-
+<!-- 登录 -->
+<div id="loginBox">
+  <h2>登录</h2>
+  <input id="email" style="width:100%;padding:10px" placeholder="邮箱">
+  <button onclick="login()">登录</button>
+  <p id="msg" style="color:red"></p>
+</div>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>传播理论闯关测验</title>
@@ -2670,8 +2660,74 @@
             }, 100);
         });
     </script>
+              <div id="quizBox">
+  <h2>欢迎进入测验</h2>
+  <p>你已经通过白名单与设备校验</p>
+  <button onclick="logout()">退出登录</button>
+</div>
+
+<script>
+const WORKER = "https://empty-queen-8cef.yangjian930317.workers.dev";
+
+function deviceId() {
+  let d = localStorage.getItem("device_id");
+  if (!d) {
+    d = crypto.randomUUID();
+    localStorage.setItem("device_id", d);
+  }
+  return d;
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) return;
+
+  const res = await fetch(
+    `${WORKER}/login?email=${email}&device=${deviceId()}`
+  );
+
+  if (!res.ok) {
+    document.getElementById("msg").innerText = "无权限";
+    return;
+  }
+
+  const { token } = await res.json();
+  localStorage.setItem("email", email);
+  localStorage.setItem("token", token);
+
+  check();
+}
+
+async function check() {
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+  const device = deviceId();
+
+  if (!email || !token) return;
+
+  const res = await fetch(
+    `${WORKER}/verify?email=${email}&device=${device}&token=${token}`
+  );
+
+  if (!res.ok) {
+    logout();
+    return;
+  }
+
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("quizBox").style.display = "block";
+}
+
+function logout() {
+  localStorage.clear();
+  location.reload();
+}
+
+check();
+</script>
 </body>
 </html>
+
 
 
 
